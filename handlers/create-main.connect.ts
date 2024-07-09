@@ -1,5 +1,5 @@
 import { connect, JetStreamClient, NatsConnection } from "nats";
-import { leafDomain, mainNodeUrl } from "./constants";
+import { leafDomain, mainDomain, mainNodeUrl } from "./constants";
 
 export async function createMainConnect(): Promise<{
   mainNc: NatsConnection,
@@ -7,7 +7,7 @@ export async function createMainConnect(): Promise<{
 }> {
   const mainNc = await connect({ servers: [mainNodeUrl] });
   const mainJs = mainNc.jetstream({
-    domain: leafDomain
+    domain: mainDomain
   });
   return {
     mainNc,
