@@ -1,0 +1,29 @@
+version: '3.8'
+
+name: "test-leaf"
+
+services:
+  nats-main:
+    image: nats:2.9.8
+    container_name: nats-main
+    ports:
+      - "4222:4222"
+      - "6222:6222"
+      - "8222:8222"
+      - "7422:7422" # Порт для leaf узлов
+    command: -c /etc/nats/main.conf
+    volumes:
+      - ./main.conf:/etc/nats/main.conf
+
+  nats-leaf:
+    image: nats:2.9.8
+    container_name: nats-leaf
+    ports:
+      - "4223:4222"
+      - "6223:6222"
+      - "8223:8222"
+    command: -c /etc/nats/leaf.conf
+    depends_on:
+      - nats-main
+    volumes:
+      - ./leaf.conf:/etc/nats/leaf.conf
