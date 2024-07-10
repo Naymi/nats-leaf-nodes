@@ -4,7 +4,7 @@ name: "test-leaf"
 
 services:
   nats-main:
-    image: nats:latest
+    image: nats:alpine
     container_name: nats-main
     ports:
       - "4222:4222"
@@ -16,7 +16,10 @@ services:
       - ./main.conf:/etc/nats/main.conf
 
   nats-leaf:
-    image: nats:latest
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    image: nats:alpine
     container_name: nats-leaf
     ports:
       - "4223:4222"

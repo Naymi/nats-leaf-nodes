@@ -2,8 +2,6 @@
   "name": "nats-sandbox",
   "packageManager": "yarn@4.3.1",
   "scripts": {
-    "start:dev": "nodemon --exec ts-node-transpile-only main.ts",
-    "start:dev1": "nodemon --exec ts-node-transpile-only try-space-flow.ts",
     "start:leaf:dev": "nodemon --exec ts-node-transpile-only handlers/leaf.ts",
     "start:main:dev": "nodemon --exec ts-node-transpile-only handlers/main.ts"
   },
