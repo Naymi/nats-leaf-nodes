@@ -10,6 +10,7 @@ const main = async () => {
     leafNc,
     leafJs
   } = await createLeafConnection();
+  console.log('leaf connection created!')
   const argsKv = await leafJs.views.kv(leafArgsKvName, {
     mirror: {
       domain: mainDomain,

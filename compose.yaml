@@ -1,11 +1,11 @@
 version: '3.8'
 
-name: "test-leaf"
+name: test-leaf
 
 services:
   nats-main:
-    image: nats:alpine
     container_name: nats-main
+    image: nats:alpine
     ports:
       - "4222:4222"
       - "6222:6222"
@@ -16,11 +16,11 @@ services:
       - ./main.conf:/etc/nats/main.conf
 
   nats-leaf:
+    container_name: nats-leaf
     cap_add:
       - NET_ADMIN
       - NET_RAW
     image: nats:alpine
-    container_name: nats-leaf
     ports:
       - "4223:4222"
       - "6223:6222"
@@ -30,3 +30,35 @@ services:
       - nats-main
     volumes:
       - ./leaf.conf:/etc/nats/leaf.conf
+
+  nats-leaf-1:
+    container_name: nats-leaf1
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    image: nats:alpine
+    ports:
+      - "4224:4222"
+      - "6224:6222"
+      - "8224:8222"
+    command: -c /etc/nats/leaf.conf
+    depends_on:
+      - nats-main
+    volumes:
+      - ./leaf1.conf:/etc/nats/leaf.conf
+
+  nats-leaf-2:
+    container_name: nats-leaf2
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    image: nats:alpine
+    ports:
+      - "4225:4222"
+      - "6225:6222"
+      - "8225:8222"
+    command: -c /etc/nats/leaf.conf
+    depends_on:
+      - nats-main
+    volumes:
+      - ./leaf2.conf:/etc/nats/leaf.conf
