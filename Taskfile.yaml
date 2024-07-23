@@ -1,0 +1,19 @@
+version: '3'
+
+tasks:
+  leaf:
+    deps:
+      - nats
+    cmds:
+      - ts-node handlers/leaf.ts
+  main:
+    deps:
+      - nats
+    cmds:
+      - ts-node handlers/main.ts
+  nats:
+    run: once
+    cmds:
+      - docker compose up -d --wait
+  nats:destroy:
+    - docker compose down

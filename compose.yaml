@@ -1,7 +1,12 @@
 version: '3.8'
 
 name: test-leaf
-
+x-healthcheck: &health
+  healthcheck:
+    test: wget --no-verbose --tries=1 --spider http://localhost:8222/healthz || exit 1
+    interval: 2s
+    start_period: 5s
+    timeout: 3s
 services:
   nats-main:
     container_name: nats-main
@@ -14,6 +19,7 @@ services:
     command: -c /etc/nats/main.conf
     volumes:
       - ./main.conf:/etc/nats/main.conf
+    <<: *health
 
   nats-leaf:
     container_name: nats-leaf
@@ -30,6 +36,7 @@ services:
       - nats-main
     volumes:
       - ./leaf.conf:/etc/nats/leaf.conf
+    <<: *health
 
   nats-leaf-1:
     container_name: nats-leaf1
@@ -47,6 +54,8 @@ services:
     volumes:
       - ./leaf1.conf:/etc/nats/leaf.conf
 
+    <<: *health
+
   nats-leaf-2:
     container_name: nats-leaf2
     cap_add:
@@ -62,3 +71,4 @@ services:
       - nats-main
     volumes:
       - ./leaf2.conf:/etc/nats/leaf.conf
+    <<: *health
