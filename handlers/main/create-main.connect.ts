@@ -1,5 +1,5 @@
 import { connect, JetStreamClient, NatsConnection } from "nats";
-import { leafDomain, mainDomain, mainNodeUrl } from "./constants";
+import { mainDomain, mainNodeUrl } from "../constants";
 
 export async function createMainConnect(): Promise<{
   mainNc: NatsConnection,

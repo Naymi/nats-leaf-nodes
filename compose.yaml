@@ -21,6 +21,19 @@ services:
       - ./main.conf:/etc/nats/main.conf
     <<: *health
 
+  nats-satellite:
+    container_name: nats-satellite
+    image: nats:alpine
+    ports:
+      - "4322:4222"
+      - "6322:6222"
+      - "8322:8222"
+      - "7522:7422" # Порт для leaf узлов
+    command: -c /etc/nats/main.conf
+    volumes:
+      - ./satellite.conf:/etc/nats/main.conf
+    <<: *health
+
   nats-leaf:
     container_name: nats-leaf
     cap_add:

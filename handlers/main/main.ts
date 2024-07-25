@@ -1,6 +1,6 @@
 import { StringCodec } from "nats";
 import { randomUUID } from "node:crypto";
-import { leafArgsKvName, leafDomain, leafResultKvName, mainArgsKvName, mainResultKvName } from "./constants";
+import { leafDomain, leafResultKvName, mainArgsKvName, mainResultKvName } from "../constants";
 import { createMainConnect } from "./create-main.connect";
 
 const main = async () => {

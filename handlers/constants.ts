@@ -1,12 +1,12 @@
 // Убедитесь, что эти параметры соответствуют вашим настройкам NATS
 import { StringCodec } from "nats";
 
-export const leafNodeUrl = "nats://localhost:4223";
+export const leafNodeUrl = "nats://localhost:4322";
 // Убедитесь, что эти параметры соответствуют вашим настройкам NATS
 export const mainNodeUrl = "nats://localhost:4222";
 export const sc = StringCodec();
 export const leafDomain: string = 'leaf';
-export const mainDomain: string = 'hub';
+export const mainDomain: string = 'main';
 export const mainArgsKvName = "space-0-args";
 export const leafArgsKvName = "space-0-args";
 export const mainResultKvName = "space-0-result";

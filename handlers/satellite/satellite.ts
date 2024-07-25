@@ -1,5 +1,5 @@
-import { leafArgsKvName, leafResultKvName, mainArgsKvName, mainDomain, sc } from "./constants";
-import { createLeafConnection } from "./create-leaf.connection";
+import { leafArgsKvName, leafResultKvName, mainArgsKvName, mainDomain, sc } from "../constants";
+import { createSatelliteConnection } from "./create-satellite-connection";
 
 const main = async () => {
 
@@ -7,17 +7,17 @@ const main = async () => {
 
   // Создаем или подключаемся к KV "space-0" на leaf node и получаем ссылку на ключ 'result'
   const {
-    leafNc,
-    leafJs
-  } = await createLeafConnection();
+    satelliteNc,
+    satelliteJs
+  } = await createSatelliteConnection();
   console.log('leaf connection created!')
-  const argsKv = await leafJs.views.kv(leafArgsKvName, {
+  const argsKv = await satelliteJs.views.kv(leafArgsKvName, {
     mirror: {
       domain: mainDomain,
       name: mainArgsKvName
     },
   });
-  const resultKv = await leafJs.views.kv(leafResultKvName);
+  const resultKv = await satelliteJs.views.kv(leafResultKvName);
 
   // Настройка watch на leaf node для отслеживания изменений в 'args'
   const leafArgsWatch = await argsKv.watch();
@@ -40,7 +40,7 @@ const main = async () => {
   try {
     // Очистка при завершении
     process.on('SIGINT', () => {
-      leafNc.drain();
+      satelliteNc.drain();
       process.exit();
     });
   } catch (err) {

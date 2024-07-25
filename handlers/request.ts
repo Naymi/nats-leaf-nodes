@@ -1,5 +1,5 @@
 import { sc } from "./constants";
-import { createLeafConnection } from "./create-leaf.connection";
+import { createSatelliteConnection } from "./satellite/create-satellite-connection";
 
 const main = async () => {
 
@@ -7,17 +7,17 @@ const main = async () => {
 
   // Создаем или подключаемся к KV "space-0" на leaf node и получаем ссылку на ключ 'result'
   const {
-    leafNc,
-  } = await createLeafConnection();
+    satelliteNc,
+  } = await createSatelliteConnection();
 
   try {
-    let nc = leafNc;
+    let nc = satelliteNc;
     let request: string = 'foo';
     console.log('request: ', request)
     const r = await nc.request('subj', sc.encode(request))
     console.log('reply: ', r.string())
   } finally {
-    await leafNc.close()
+    await satelliteNc.close()
   }
 };
 

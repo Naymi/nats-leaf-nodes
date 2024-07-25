@@ -1,6 +1,5 @@
 import { StringCodec } from "nats";
-import { createLeafConnection } from "./create-leaf.connection";
-import { createMainConnect } from "./create-main.connect";
+import { createMainConnect } from "./main/create-main.connect";
 
 const main = async () => {
   // Создаем подключение к main node
