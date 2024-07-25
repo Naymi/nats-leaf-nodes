@@ -11,12 +11,7 @@ const main = async () => {
     satelliteJs
   } = await createSatelliteConnection();
   console.log('satellite connection created!')
-  const argsKv = await satelliteJs.views.kv(satelliteArgsKvName, {
-    mirror: {
-      domain: mainDomain,
-      name: mainArgsKvName
-    },
-  });
+  const argsKv = await satelliteJs.views.kv(satelliteArgsKvName, );
   const resultKv = await satelliteJs.views.kv(satelliteResultKvName);
 
   // Настройка watch на satellite node для отслеживания изменений в 'args'
@@ -24,6 +19,7 @@ const main = async () => {
   console.log('Watch initialized on satellite node for args');
   (async () => {
     for await (const e of satelliteArgsWatch) {
+      console.log({ e }, e.revision)
       if (e.operation === 'PUT' && e.value) {
         const args = sc.decode(e.value)
           .split(',')

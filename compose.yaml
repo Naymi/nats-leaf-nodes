@@ -5,7 +5,7 @@ x-healthcheck: &health
   healthcheck:
     test: wget --no-verbose --tries=1 --spider http://localhost:8222/healthz || exit 1
     interval: 2s
-    start_period: 5s
+    start_period: 1s
     timeout: 3s
 services:
   nats-main:
@@ -19,6 +19,8 @@ services:
     command: -c /etc/nats/main.conf
     volumes:
       - ./main.conf:/etc/nats/main.conf
+    profiles:
+      - main
     <<: *health
 
   nats-main1:
@@ -32,6 +34,8 @@ services:
     command: -c /etc/nats/main.conf
     volumes:
       - ./main1.conf:/etc/nats/main.conf
+    profiles:
+      - main
     <<: *health
 
   nats-main2:
@@ -45,6 +49,8 @@ services:
     command: -c /etc/nats/main.conf
     volumes:
       - ./main2.conf:/etc/nats/main.conf
+    profiles:
+      - main
     <<: *health
 
   nats-satellite:
@@ -58,6 +64,8 @@ services:
     command: -c /etc/nats/main.conf
     volumes:
       - ./satellite.conf:/etc/nats/main.conf
+    profiles:
+      - satellite
     <<: *health
 
   nats-satellite1:
@@ -71,6 +79,8 @@ services:
     command: -c /etc/nats/main.conf
     volumes:
       - ./satellite1.conf:/etc/nats/main.conf
+    profiles:
+      - satellite
     <<: *health
 
   nats-satellite2:
@@ -84,6 +94,8 @@ services:
     command: -c /etc/nats/main.conf
     volumes:
       - ./satellite2.conf:/etc/nats/main.conf
+    profiles:
+      - satellite
     <<: *health
 
   nats-arbiter:
@@ -97,8 +109,58 @@ services:
       - "6423:6222"
       - "8423:8222"
     command: -c /etc/nats/leaf.conf
-    depends_on:
-      - nats-main
     volumes:
       - ./arbiter.conf:/etc/nats/leaf.conf
     <<: *health
+
+#  nats-leaf:
+#    container_name: nats-leaf
+#    cap_add:
+#      - NET_ADMIN
+#      - NET_RAW
+#    image: nats:alpine
+#    ports:
+#      - "4523:4222"
+#      - "6523:6222"
+#      - "8523:8222"
+#    command: -c /etc/nats/leaf.conf
+#    depends_on:
+#      - nats-main
+#    volumes:
+#      - ./leaf.conf:/etc/nats/leaf.conf
+#    <<: *health
+#
+#  nats-leaf-1:
+#    container_name: nats-leaf1
+#    cap_add:
+#      - NET_ADMIN
+#      - NET_RAW
+#    image: nats:alpine
+#    ports:
+#      - "4524:4222"
+#      - "6524:6222"
+#      - "8524:8222"
+#    command: -c /etc/nats/leaf.conf
+#    depends_on:
+#      - nats-main
+#    volumes:
+#      - ./leaf1.conf:/etc/nats/leaf.conf
+#
+#    <<: *health
+#
+#  nats-leaf-2:
+#    container_name: nats-leaf2
+#    cap_add:
+#      - NET_ADMIN
+#      - NET_RAW
+#    image: nats:alpine
+#    ports:
+#      - "4525:4222"
+#      - "6525:6222"
+#      - "8525:8222"
+#    command: -c /etc/nats/leaf.conf
+#    depends_on:
+#      - nats-main
+#    volumes:
+#      - ./leaf2.conf:/etc/nats/leaf.conf
+#    <<: *health

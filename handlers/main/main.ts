@@ -1,6 +1,5 @@
 import { StringCodec } from "nats";
-import { randomUUID } from "node:crypto";
-import { leafDomain, leafResultKvName, mainArgsKvName, mainResultKvName } from "../constants";
+import { satelliteDomain, satelliteArgsKvName, mainArgsKvName, mainResultKvName } from "../constants";
 import { createMainConnect } from "./create-main.connect";
 
 const main = async () => {
@@ -13,12 +12,7 @@ const main = async () => {
 
   // Создаем или подключаемся к KV "space-0" на main node и получаем ссылку на ключ 'args'
   const argsKv = await mainJs.views.kv(mainArgsKvName);
-  const resultKv = await mainJs.views.kv(mainResultKvName, {
-    mirror: {
-      domain: leafDomain,
-      name: leafResultKvName
-    }
-  });
+  const resultKv = await mainJs.views.kv(mainResultKvName);
 
   // Настройка watch на main node для отслеживания изменений в 'result'
   const mainResultWatch = await resultKv.watch();
