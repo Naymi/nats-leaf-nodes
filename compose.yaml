@@ -21,6 +21,32 @@ services:
       - ./main.conf:/etc/nats/main.conf
     <<: *health
 
+  nats-main1:
+    container_name: nats-main1
+    image: nats:alpine
+    ports:
+      - "4223:4222"
+      - "6223:6222"
+      - "8223:8222"
+      - "7423:7422" # Порт для leaf узлов
+    command: -c /etc/nats/main.conf
+    volumes:
+      - ./main1.conf:/etc/nats/main.conf
+    <<: *health
+
+  nats-main2:
+    container_name: nats-main2
+    image: nats:alpine
+    ports:
+      - "4224:4222"
+      - "6224:6222"
+      - "8224:8222"
+      - "7424:7422" # Порт для leaf узлов
+    command: -c /etc/nats/main.conf
+    volumes:
+      - ./main2.conf:/etc/nats/main.conf
+    <<: *health
+
   nats-satellite:
     container_name: nats-satellite
     image: nats:alpine
@@ -34,54 +60,45 @@ services:
       - ./satellite.conf:/etc/nats/main.conf
     <<: *health
 
-  nats-leaf:
-    container_name: nats-leaf
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
+  nats-satellite1:
+    container_name: nats-satellite1
     image: nats:alpine
     ports:
-      - "4223:4222"
-      - "6223:6222"
-      - "8223:8222"
-    command: -c /etc/nats/leaf.conf
-    depends_on:
-      - nats-main
+      - "4323:4222"
+      - "6323:6222"
+      - "8323:8222"
+      - "7523:7422" # Порт для leaf узлов
+    command: -c /etc/nats/main.conf
     volumes:
-      - ./leaf.conf:/etc/nats/leaf.conf
+      - ./satellite1.conf:/etc/nats/main.conf
     <<: *health
 
-  nats-leaf-1:
-    container_name: nats-leaf1
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
+  nats-satellite2:
+    container_name: nats-satellite2
     image: nats:alpine
     ports:
-      - "4224:4222"
-      - "6224:6222"
-      - "8224:8222"
-    command: -c /etc/nats/leaf.conf
-    depends_on:
-      - nats-main
+      - "4324:4222"
+      - "6324:6222"
+      - "8324:8222"
+      - "7524:7422" # Порт для leaf узлов
+    command: -c /etc/nats/main.conf
     volumes:
-      - ./leaf1.conf:/etc/nats/leaf.conf
-
+      - ./satellite2.conf:/etc/nats/main.conf
     <<: *health
 
-  nats-leaf-2:
-    container_name: nats-leaf2
+  nats-arbiter:
+    container_name: nats-arbiter
     cap_add:
       - NET_ADMIN
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4225:4222"
-      - "6225:6222"
-      - "8225:8222"
+      - "4422:4222"
+      - "6423:6222"
+      - "8423:8222"
     command: -c /etc/nats/leaf.conf
     depends_on:
       - nats-main
     volumes:
-      - ./leaf2.conf:/etc/nats/leaf.conf
+      - ./arbiter.conf:/etc/nats/leaf.conf
     <<: *health

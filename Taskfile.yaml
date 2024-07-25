@@ -36,4 +36,4 @@ tasks:
     deps:
       - nats
     cmds:
-      - nats bench foo --pub 1 --request --msgs 10000 --server nats://localhost:4222
+      - nats bench foo --pub 1 --request --msgs 10000 --server nats://localhost:4223
