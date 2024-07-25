@@ -1,13 +1,13 @@
 import { connect, JetStreamClient, NatsConnection } from "nats";
-import { leafDomain, leafNodeUrl } from "../constants";
+import { satelliteDomain, satelliteNodeUrl } from "../constants";
 
 export async function createSatelliteConnection(): Promise<{
   satelliteNc: NatsConnection,
   satelliteJs: JetStreamClient
 }> {
-  const satelliteNc = await connect({ servers: [leafNodeUrl],  });
+  const satelliteNc = await connect({ servers: [satelliteNodeUrl],  });
   const satelliteJs = satelliteNc.jetstream({
-    domain: leafDomain
+    domain: satelliteDomain
   });
   return {
     satelliteNc: satelliteNc,
