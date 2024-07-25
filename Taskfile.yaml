@@ -17,3 +17,11 @@ tasks:
       - docker compose up -d --wait
   nats:destroy:
     - docker compose down
+
+  reply:
+    cmds:
+      - ts-node handlers/reply.ts
+
+  request:
+    cmds:
+      - ts-node handlers/request.ts

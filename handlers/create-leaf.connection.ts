@@ -5,7 +5,7 @@ export async function createLeafConnection(): Promise<{
   leafNc: NatsConnection,
   leafJs: JetStreamClient
 }> {
-  const leafNc = await connect({ servers: [leafNodeUrl] });
+  const leafNc = await connect({ servers: [leafNodeUrl],  });
   const leafJs = leafNc.jetstream({
     domain: leafDomain
   });
