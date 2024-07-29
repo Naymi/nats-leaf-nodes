@@ -1,4 +1,4 @@
-import { satelliteArgsKvName, satelliteResultKvName, mainArgsKvName, mainDomain, sc } from "../constants";
+import { sc, leafDomain, argsKvName, resultKvName } from "../constants";
 import { createSatelliteConnection } from "./create-satellite-connection";
 
 const main = async () => {
@@ -11,15 +11,21 @@ const main = async () => {
     satelliteJs
   } = await createSatelliteConnection();
   console.log('satellite connection created!')
-  const argsKv = await satelliteJs.views.kv(satelliteArgsKvName, );
-  const resultKv = await satelliteJs.views.kv(satelliteResultKvName);
-
+  const argsKv = await satelliteJs.views.kv(argsKvName, {
+    mirror: {
+      domain: leafDomain,
+      name: argsKvName
+    }
+  });
+  const resultKv = await satelliteJs.views.kv(resultKvName);
+  for await (const kvEntryQueuedIteratorElement of await argsKv.history()) {
+    console.log(kvEntryQueuedIteratorElement);
+  }
   // Настройка watch на satellite node для отслеживания изменений в 'args'
   const satelliteArgsWatch = await argsKv.watch();
   console.log('Watch initialized on satellite node for args');
   (async () => {
     for await (const e of satelliteArgsWatch) {
-      console.log({ e }, e.revision)
       if (e.operation === 'PUT' && e.value) {
         const args = sc.decode(e.value)
           .split(',')

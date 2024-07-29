@@ -2,15 +2,20 @@ version: '3'
 
 tasks:
   satellite:
-    deps:
-      - nats:satellite
+#    deps:
+#      - nats:satellite
     cmds:
       - ts-node handlers/satellite/satellite.ts
   main:
-    deps:
-      - nats:main
+#    deps:
+#      - nats:main
     cmds:
       - ts-node handlers/main/main.ts
+  leaf:
+#    deps:
+#      - nats:main
+    cmds:
+      - ts-node handlers/leaf/leaf.ts
   nats:main:
     run: once
     cmds:

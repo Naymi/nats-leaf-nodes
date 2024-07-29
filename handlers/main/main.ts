@@ -1,5 +1,8 @@
 import { StringCodec } from "nats";
-import { satelliteDomain, satelliteArgsKvName, mainArgsKvName, mainResultKvName } from "../constants";
+import {
+  argsKvName, resultKvName,
+  satelliteDomain,
+} from "../constants";
 import { createMainConnect } from "./create-main.connect";
 
 const main = async () => {
@@ -11,8 +14,13 @@ const main = async () => {
   const sc = StringCodec();
 
   // Создаем или подключаемся к KV "space-0" на main node и получаем ссылку на ключ 'args'
-  const argsKv = await mainJs.views.kv(mainArgsKvName);
-  const resultKv = await mainJs.views.kv(mainResultKvName);
+  const argsKv = await mainJs.views.kv(argsKvName);
+  const resultKv = await mainJs.views.kv(resultKvName, {
+    mirror: {
+      domain: satelliteDomain,
+      name: resultKvName
+    }
+  });
 
   // Настройка watch на main node для отслеживания изменений в 'result'
   const mainResultWatch = await resultKv.watch();
