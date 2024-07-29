@@ -10,7 +10,7 @@ const main = async ()=>{
       name: argsKvName
     }
   })
-  const resultKv = await leafJs.views.kv(argsKvName, {
+  const resultKv = await leafJs.views.kv(resultKvName, {
     mirror: {
       domain: satelliteDomain,
       name: resultKvName

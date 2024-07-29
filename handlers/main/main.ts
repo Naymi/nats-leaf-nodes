@@ -1,6 +1,6 @@
 import { StringCodec } from "nats";
 import {
-  argsKvName, resultKvName,
+  argsKvName, leafDomain, resultKvName,
   satelliteDomain,
 } from "../constants";
 import { createMainConnect } from "./create-main.connect";
@@ -17,7 +17,7 @@ const main = async () => {
   const argsKv = await mainJs.views.kv(argsKvName);
   const resultKv = await mainJs.views.kv(resultKvName, {
     mirror: {
-      domain: satelliteDomain,
+      domain: leafDomain,
       name: resultKvName
     }
   });

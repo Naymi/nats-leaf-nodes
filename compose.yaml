@@ -7,6 +7,7 @@ x-healthcheck: &health
     interval: 2s
     start_period: 1s
     timeout: 3s
+
 services:
   nats-main:
     container_name: nats-main
@@ -129,6 +130,8 @@ services:
     networks:
       satellite:
       main:
+    extra_hosts:
+      - outside.world.ip:host-gateway
     <<: *health
 
   nats-leaf-1:
@@ -149,6 +152,8 @@ services:
     networks:
       satellite:
       main:
+    extra_hosts:
+      - outside.world.ip:host-gateway
     <<: *health
 
   nats-leaf-2:
@@ -169,6 +174,8 @@ services:
     networks:
       satellite:
       main:
+    extra_hosts:
+      - outside.world.ip:host-gateway
     <<: *health
 
 networks:
