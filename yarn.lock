@@ -341,6 +341,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"colors@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "colors@npm:1.4.0"
+  checksum: 10c0/9af357c019da3c5a098a301cf64e3799d27549d8f185d86f79af23069e4f4303110d115da98483519331f6fb71c8568d5688fa1c6523600044fd4a54e97c4efb
+  languageName: node
+  linkType: hard
+
 "concat-map@npm:0.0.1":
   version: 0.0.1
   resolution: "concat-map@npm:0.0.1"
@@ -914,6 +921,7 @@ __metadata:
   resolution: "nats-sandbox@workspace:."
   dependencies:
     "@types/node": "npm:^20.14.10"
+    colors: "npm:^1.4.0"
     nats: "npm:^2.28.0"
     nodemon: "npm:^3.1.4"
     ts-node: "npm:^10.9.2"

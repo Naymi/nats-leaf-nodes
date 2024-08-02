@@ -2,6 +2,7 @@ import {
   argsKvName, leafDomain, resultKvName, sc,
 } from "../constants";
 import { createMainConnect } from "./create-main.connect";
+import 'colors'
 
 const main = async () => {
   // Создаем подключение к main node
@@ -22,16 +23,16 @@ const main = async () => {
 
   // Настройка watch на main node для отслеживания изменений в 'result'
   const mainResultWatch = await resultKv.watch();
-  console.log('Watch initialized on main node for result');
+  console.log('Watch initialized on main node for result'.blue);
   (async () => {
     for await (const e of mainResultWatch) {
       if (e.operation === 'PUT' && e.value) {
         const result = sc.decode(e.value);
-        console.log(`[main] Result received: ${e.key} - ${result}`);
+        console.log(`[main] Result received: ${e.key} - ${result}`.green);
       }
     }
   })()
-    .catch(err => console.error('Error in main watch:', err));
+    .catch(err => console.error('Error in main watch:'.red, err));
 
   try {
     // Генерация и запись случайной комбинации цифр каждые 3 секунды
@@ -39,7 +40,7 @@ const main = async () => {
       const randomNumbers = Array.from({ length: 2 }, () => Math.floor(Math.random() * 11));
       const value = randomNumbers.join(',');
       await argsKv.put(randomNumbers.join('-'), sc.encode(value));
-      console.log(`[main] Random numbers written: ${value}`);
+      console.log(`[main] Random numbers written: ${value}`.blue);
     }, 3000);
 
     // Очистка при завершении

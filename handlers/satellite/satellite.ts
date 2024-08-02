@@ -1,6 +1,6 @@
 import { sc, leafDomain, argsKvName, resultKvName } from "../constants";
 import { createSatelliteConnection } from "./create-satellite-connection";
-
+import 'colors'
 const main = async () => {
 
   // Создаем или подключаемся к KV "space-0" на main node и получаем ссылку на ключ 'args'
@@ -23,7 +23,7 @@ const main = async () => {
   }
   // Настройка watch на satellite node для отслеживания изменений в 'args'
   const satelliteArgsWatch = await argsKv.watch();
-  console.log('Watch initialized on satellite node for args');
+  console.log('Watch initialized on satellite node for args'.blue);
   (async () => {
     for await (const e of satelliteArgsWatch) {
       if (e.operation === 'PUT' && e.value) {
@@ -31,13 +31,13 @@ const main = async () => {
           .split(',')
           .map(Number);
         const sum = args.reduce((a, b) => a + b, 0);
-        console.log(`[satellite] Message accepted: ${e.key} ${args.join(',')}`);
+        console.log(`[satellite] Message accepted: ${e.key} ${args.join(',')}`.blue);
         await resultKv.put(e.key, sc.encode(sum.toString()));
-        console.log(`[satellite] Result written: ${sum}`);
+        console.log(`[satellite] Result written: ${sum}`.green);
       }
     }
   })()
-    .catch(err => console.error('Error in satellite watch:', err));
+    .catch(err => console.error('Error in satellite watch:'.red, err));
 
   try {
     // Очистка при завершении
