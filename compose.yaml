@@ -1,12 +1,14 @@
 version: '3.8'
 
 name: test-leaf
-x-healthcheck: &health
+x-healthcheck: &common
   healthcheck:
     test: wget --no-verbose --tries=1 --spider http://localhost:8222/healthz || exit 1
     interval: 2s
     start_period: 1s
     timeout: 3s
+  volumes:
+    - ./nats-config:/etc/nats:ro
 
 services:
   nui:
@@ -25,13 +27,11 @@ services:
       - "8222:8222"
       - "7422:7422" # Порт для leaf узлов
     command: -c /etc/nats/main.conf
-    volumes:
-      - ./main.conf:/etc/nats/main.conf
     profiles:
       - main
     networks:
       main:
-    <<: *health
+    <<: *common
 
   nats-main1:
     container_name: nats-main1
@@ -41,14 +41,12 @@ services:
       - "6223:6222"
       - "8223:8222"
       - "7423:7422" # Порт для leaf узлов
-    command: -c /etc/nats/main.conf
-    volumes:
-      - ./main1.conf:/etc/nats/main.conf
+    command: -c /etc/nats/main1.conf
     profiles:
       - main
     networks:
       main:
-    <<: *health
+    <<: *common
 
   nats-main2:
     container_name: nats-main2
@@ -58,14 +56,12 @@ services:
       - "6224:6222"
       - "8224:8222"
       - "7424:7422" # Порт для leaf узлов
-    command: -c /etc/nats/main.conf
-    volumes:
-      - ./main2.conf:/etc/nats/main.conf
+    command: -c /etc/nats/main2.conf
     profiles:
       - main
     networks:
       main:
-    <<: *health
+    <<: *common
 
   nats-satellite:
     container_name: nats-satellite
@@ -76,14 +72,12 @@ services:
       - "8322:8222"
       - "7322:7222"
       - "7522:7422" # Порт для leaf узлов
-    command: -c /etc/nats/main.conf
-    volumes:
-      - ./satellite.conf:/etc/nats/main.conf
+    command: -c /etc/nats/satellite.conf
     profiles:
       - satellite
     networks:
       satellite:
-    <<: *health
+    <<: *common
 
   nats-satellite1:
     container_name: nats-satellite1
@@ -93,14 +87,12 @@ services:
       - "6323:6222"
       - "8323:8222"
       - "7523:7422" # Порт для leaf узлов
-    command: -c /etc/nats/main.conf
-    volumes:
-      - ./satellite1.conf:/etc/nats/main.conf
+    command: -c /etc/nats/satellite1.conf
     profiles:
       - satellite
     networks:
       satellite:
-    <<: *health
+    <<: *common
 
   nats-satellite2:
     container_name: nats-satellite2
@@ -110,14 +102,12 @@ services:
       - "6324:6222"
       - "8324:8222"
       - "7524:7422" # Порт для leaf узлов
-    command: -c /etc/nats/main.conf
-    volumes:
-      - ./satellite2.conf:/etc/nats/main.conf
+    command: -c /etc/nats/satellite2.conf
     profiles:
       - satellite
     networks:
       satellite:
-    <<: *health
+    <<: *common
 
   nats-leaf:
     container_name: nats-leaf
@@ -132,14 +122,12 @@ services:
     command: -c /etc/nats/leaf.conf
     depends_on:
       - nats-main
-    volumes:
-      - ./leaf.conf:/etc/nats/leaf.conf
     networks:
       satellite:
       main:
     extra_hosts:
       - outside.world.ip:host-gateway
-    <<: *health
+    <<: *common
 
   nats-leaf-1:
     container_name: nats-leaf1
@@ -151,17 +139,15 @@ services:
       - "4524:4222"
       - "6524:6222"
       - "8524:8222"
-    command: -c /etc/nats/leaf.conf
+    command: -c /etc/nats/leaf1.conf
     depends_on:
       - nats-main
-    volumes:
-      - ./leaf1.conf:/etc/nats/leaf.conf
     networks:
       satellite:
       main:
     extra_hosts:
       - outside.world.ip:host-gateway
-    <<: *health
+    <<: *common
 
   nats-leaf-2:
     container_name: nats-leaf2
@@ -173,17 +159,15 @@ services:
       - "4525:4222"
       - "6525:6222"
       - "8525:8222"
-    command: -c /etc/nats/leaf.conf
+    command: -c /etc/nats/leaf2.conf
     depends_on:
       - nats-main
-    volumes:
-      - ./leaf2.conf:/etc/nats/leaf.conf
     networks:
       satellite:
       main:
     extra_hosts:
       - outside.world.ip:host-gateway
-    <<: *health
+    <<: *common
 
 networks:
   satellite:
