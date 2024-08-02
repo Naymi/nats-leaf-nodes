@@ -1,7 +1,5 @@
-import { StringCodec } from "nats";
 import {
-  argsKvName, leafDomain, resultKvName,
-  satelliteDomain,
+  argsKvName, leafDomain, resultKvName, sc,
 } from "../constants";
 import { createMainConnect } from "./create-main.connect";
 
@@ -11,7 +9,7 @@ const main = async () => {
     mainNc,
     mainJs
   } = await createMainConnect();
-  const sc = StringCodec();
+
 
   // Создаем или подключаемся к KV "space-0" на main node и получаем ссылку на ключ 'args'
   const argsKv = await mainJs.views.kv(argsKvName);
