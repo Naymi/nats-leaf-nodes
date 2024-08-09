@@ -1,4 +1,4 @@
-import { sc, leafDomain, argsKvName, resultKvName } from "../constants";
+import { sc, leafDomain, argsKvName, resultKvName, satelliteDomain } from "../constants";
 import { createSatelliteConnection } from "./create-satellite-connection";
 import 'colors'
 const main = async () => {
@@ -11,6 +11,44 @@ const main = async () => {
     satelliteJs
   } = await createSatelliteConnection();
   console.log('satellite connection created!')
+
+
+  const jsm = await satelliteJs.jetstreamManager()
+  let cmdStreamName: string = 'space-0-commands';
+  let cmdResultStreamName: string = 'space-0-result';
+  const stream = await jsm.streams.get(cmdResultStreamName).catch(()=>null) ?? await jsm.streams.add({
+    name: cmdResultStreamName,
+    subjects: [
+      'space.0.service.*.commands.*.result'
+    ],
+  })
+  const resultStream = await jsm.streams.get(cmdStreamName).catch(()=>null) ?? await jsm.streams.add({
+    name: cmdStreamName,
+    mirror: {
+      domain: leafDomain,
+      name: cmdStreamName,
+    }
+  })
+
+  let satelliteCommandConsumer: string = 'satellite-command-consumer';
+  const consumer = await jsm.consumers.add(cmdStreamName, {
+    name: satelliteCommandConsumer
+  })
+
+  const c = await satelliteJs.consumers.get(cmdStreamName, consumer.name)
+  const msgs = await c.consume();
+  (async () => {
+    for await (const msg of msgs) {
+      console.log('consume:', (msg.string()))
+      let chunks = msg.subject.split('.');
+      const cmdName = chunks[4]
+      satelliteNc.publish(`space.0.service.*.commands.${cmdName}.result`, sc.encode((parseInt(cmdName) ^ 2).toString()))
+      await msg.ack()
+    }
+  })().catch(console.error)
+
+
+
   const argsKv = await satelliteJs.views.kv(argsKvName, {
     mirror: {
       domain: leafDomain,

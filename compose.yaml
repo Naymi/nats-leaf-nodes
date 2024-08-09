@@ -120,8 +120,6 @@ services:
       - "6523:6222"
       - "8523:8222"
     command: -c /etc/nats/leaf.conf
-    depends_on:
-      - nats-main
     networks:
       satellite:
       main:
@@ -140,8 +138,6 @@ services:
       - "6524:6222"
       - "8524:8222"
     command: -c /etc/nats/leaf1.conf
-    depends_on:
-      - nats-main
     networks:
       satellite:
       main:
@@ -160,8 +156,6 @@ services:
       - "6525:6222"
       - "8525:8222"
     command: -c /etc/nats/leaf2.conf
-    depends_on:
-      - nats-main
     networks:
       satellite:
       main:

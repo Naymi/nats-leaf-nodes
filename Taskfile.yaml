@@ -11,6 +11,16 @@ tasks:
 #      - nats:main
     cmds:
       - ts-node handlers/main/main.ts
+  satellite-cmd:
+#    deps:
+#      - nats:satellite
+    cmds:
+      - ts-node handlers/satellite/satellite-commands.ts
+  main-cmd:
+#    deps:
+#      - nats:main
+    cmds:
+      - ts-node handlers/main/main-commands.ts
   leaf:
 #    deps:
 #      - nats:main

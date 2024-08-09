@@ -28,5 +28,20 @@ export const leafNodes = [
 //  "nats://localhost:4525"
 ];
 export const leafDomain: string = 'leaf';
+export let cmdStreamName: string = 'space-0-commands';
 //export const argsKvName = "space-0-args";
 //export const leafResultKvName = "space-0-result";
+export let cmdResultStreamName: string = 'space-0-result';
+export let cmdResultStreamSubjects: string[] = [
+  'space.0.service.*.commands.*.result'
+];
+export let cmdStreamSubjects: string[] = [
+  'space.0.service.*.commands.*.input'
+];
+
+export const createCmdSubject = (cmd: string)=>{
+  return `space.0.service.my.commands.${cmd}.input`
+}
+export const createCmdResultSubject = (cmd: string)=>{
+  return `space.0.service.my.commands.${cmd}.result`
+}

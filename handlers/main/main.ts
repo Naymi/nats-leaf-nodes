@@ -1,5 +1,11 @@
 import {
-  argsKvName, leafDomain, resultKvName, sc,
+  argsKvName,
+  cmdResultStreamName,
+  cmdStreamName,
+  leafDomain,
+  resultKvName,
+  satelliteDomain,
+  sc,
 } from "../constants";
 import { createMainConnect } from "./create-main.connect";
 import 'colors'
@@ -10,6 +16,41 @@ const main = async () => {
     mainNc,
     mainJs
   } = await createMainConnect();
+  const jsm = await mainJs.jetstreamManager()
+  const cmdStream = await jsm.streams.get(cmdStreamName).catch(()=>null) ?? await jsm.streams.add({
+    name: cmdStreamName,
+    subjects: [
+      'space.0.service.*.commands.*'
+    ],
+  })
+  console.log({cmdStream})
+  const resultStream = await jsm.streams.get(cmdResultStreamName).catch(()=>null) ?? await jsm.streams.add({
+    name: cmdResultStreamName,
+    mirror: {
+      domain: satelliteDomain,
+      name: cmdStreamName,
+    }
+  })
+  console.log({ resultStream })
+  setInterval(() => {
+    mainNc.publish(`space.service.${Math.floor(Math.random() * 10)}.commands.${Math.floor(Math.random())}`, sc.encode('some'))
+    console.log('published!')
+  }, 2e3)
+
+  let mainResultConsumer: string = 'main-result-consumer';
+  const consumer = await mainJs.consumers.get(cmdResultStreamName, mainResultConsumer).catch(()=>null) ?? await jsm.consumers.add(cmdResultStreamName, {
+    name: mainResultConsumer
+  })
+
+  const c = await mainJs.consumers.get(cmdResultStreamName, mainResultConsumer)
+  console.log({ c })
+  const msgs = await c.consume();
+  console.log({ msgs });
+  (async () => {
+    for await (const msg of msgs) {
+      console.log('consume result:', (msg.string()))
+    }
+  })().catch(console.error)
 
 
   // Создаем или подключаемся к KV "space-0" на main node и получаем ссылку на ключ 'args'
