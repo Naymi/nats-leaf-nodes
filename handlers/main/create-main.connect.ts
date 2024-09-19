@@ -4,6 +4,8 @@ import { mainDomain, mainNodes } from "../constants";
 export async function createMainConnect(): Promise<{
   mainNc: NatsConnection,
   mainJs: JetStreamClient
+  nc: NatsConnection,
+  js: JetStreamClient
 }> {
   const mainNc = await connect({ servers: mainNodes });
   const mainJs = mainNc.jetstream({
@@ -11,6 +13,8 @@ export async function createMainConnect(): Promise<{
   });
   return {
     mainNc,
-    mainJs
+    mainJs,
+    js: mainJs,
+    nc: mainNc,
   };
 }

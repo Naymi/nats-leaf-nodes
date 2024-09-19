@@ -4,6 +4,8 @@ import { satelliteDomain, satelliteNodes } from "../constants";
 export async function createSatelliteConnection(): Promise<{
   satelliteNc: NatsConnection,
   satelliteJs: JetStreamClient
+  nc: NatsConnection,
+  js: JetStreamClient
 }> {
   const satelliteNc = await connect({ servers: satelliteNodes,  });
   const satelliteJs = satelliteNc.jetstream({
@@ -11,6 +13,8 @@ export async function createSatelliteConnection(): Promise<{
   });
   return {
     satelliteNc: satelliteNc,
-    satelliteJs: satelliteJs
+    satelliteJs: satelliteJs,
+    nc: satelliteNc,
+    js: satelliteJs
   };
 }

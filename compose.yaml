@@ -128,7 +128,7 @@ services:
     <<: *common
 
   nats-leaf-1:
-    container_name: nats-leaf1
+    container_name: nats-leaf-1
     cap_add:
       - NET_ADMIN
       - NET_RAW
@@ -146,7 +146,7 @@ services:
     <<: *common
 
   nats-leaf-2:
-    container_name: nats-leaf2
+    container_name: nats-leaf-2
     cap_add:
       - NET_ADMIN
       - NET_RAW
