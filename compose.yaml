@@ -163,6 +163,60 @@ services:
       - outside.world.ip:host-gateway
     <<: *common
 
+  nats-leaf-gw:
+    container_name: nats-leaf-gw
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    image: nats:alpine
+    ports:
+      - "4623:4222"
+      - "6623:6222"
+      - "8923:8222"
+    command: -c /etc/nats/leaf-gw/leaf.conf
+    networks:
+      satellite:
+      main:
+    extra_hosts:
+      - outside.world.ip:host-gateway
+    <<: *common
+
+  nats-leaf-gw-1:
+    container_name: nats-leaf-gw-1
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    image: nats:alpine
+    ports:
+      - "4624:4222"
+      - "6624:6222"
+      - "8624:8222"
+    command: -c /etc/nats/leaf-gw/leaf1.conf
+    networks:
+      satellite:
+      main:
+    extra_hosts:
+      - outside.world.ip:host-gateway
+    <<: *common
+
+  nats-leaf-gw-2:
+    container_name: nats-leaf-gw-2
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    image: nats:alpine
+    ports:
+      - "4625:4222"
+      - "6625:6222"
+      - "8625:8222"
+    command: -c /etc/nats/leaf-gw/leaf2.conf
+    networks:
+      satellite:
+      main:
+    extra_hosts:
+      - outside.world.ip:host-gateway
+    <<: *common
+
 networks:
   satellite:
   main:

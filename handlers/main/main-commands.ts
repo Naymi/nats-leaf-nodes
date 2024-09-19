@@ -1,3 +1,4 @@
+import { intersection } from "lodash";
 import {
   cmdResultStreamName,
   cmdStreamName,
@@ -33,6 +34,7 @@ const main = async () => {
     const { mainNc, mainJs } = await createMainConnect();
     const jsm = await mainJs.jetstreamManager();
 
+
     // Получаем или создаем cmdStream
     const cmdStream = await jsm.streams.get(cmdStreamName).catch(() => null) ?? await jsm.streams.add({
       name: cmdStreamName,
@@ -41,12 +43,12 @@ const main = async () => {
     Logger.info('cmdStream initialized');
 
     // Получаем или создаем resultStream
-    const resultStream = await jsm.streams.get(cmdResultStreamName).catch(() => null) ?? await jsm.streams.add({
+    await jsm.streams.get(cmdResultStreamName).catch(() => null) ?? await jsm.streams.add({
       name: cmdResultStreamName,
       mirror: {
         domain: leafDomain,
         name: cmdResultStreamName,
-      }
+      },
     });
     Logger.info('resultStream initialized');
 
@@ -60,19 +62,34 @@ const main = async () => {
 
     // Получаем или создаем consumer для resultStream
     const mainResultConsumer = 'main-result-consumer';
-    const consumer = await mainJs.consumers.get(cmdResultStreamName, mainResultConsumer).catch(() => null) ?? await jsm.consumers.add(cmdResultStreamName, {
-      name: mainResultConsumer
+    await mainJs.consumers.get(cmdResultStreamName, mainResultConsumer).catch(() => null) ?? await jsm.consumers.add(cmdResultStreamName, {
+      name: mainResultConsumer,
     });
 
     const c = await mainJs.consumers.get(cmdResultStreamName, mainResultConsumer);
     Logger.info('consumer initialized!');
 
     const msgs = await c.consume();
+    const msgs2 = await c.consume();
     Logger.info('consume initialized!');
 
+    const parts = {
+      1: new Set<string>(),
+      2: new Set<string>()
+    };
     (async () => {
       for await (const msg of msgs) {
+        parts["1"].add(msg.subject)
+        console.log('intersection: ', parts, intersection([...parts[1]], [...parts[2]]))
         Logger.consume(msg.subject, '<-', msg.string());
+      }
+    })().catch(err => Logger.error('Error consuming messages:', err));
+
+    (async () => {
+      for await (const msg of msgs2) {
+        parts["2"].add(msg.subject)
+        console.log('intersection: ', parts, intersection([...parts[1]], [...parts[2]]))
+        Logger.consume('2',msg.subject, '<-', msg.string());
       }
     })().catch(err => Logger.error('Error consuming messages:', err));
 

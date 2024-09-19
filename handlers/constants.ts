@@ -19,6 +19,12 @@ export const satelliteNodes = [
 //  "nats://localhost:4324"
 ];
 export const satelliteDomain: string = 'satellite';
+export const leafGwNodes = [
+  "nats://localhost:4623",
+//  "nats://localhost:4323",
+//  "nats://localhost:4324"
+];
+export const leafGwDomain: string = 'leaf-gw';
 //export const satelliteArgsKvName = "space-0-args";
 //export const satelliteResultKvName = "space-0-result";
 

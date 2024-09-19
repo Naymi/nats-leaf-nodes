@@ -17,21 +17,20 @@ const main = async () => {
     mainJs
   } = await createMainConnect();
   const jsm = await mainJs.jetstreamManager()
-  const cmdStream = await jsm.streams.get(cmdStreamName).catch(()=>null) ?? await jsm.streams.add({
+  await jsm.streams.get(cmdStreamName).catch(()=>null) ?? await jsm.streams.add({
     name: cmdStreamName,
     subjects: [
       'space.0.service.*.commands.*'
     ],
   })
-  console.log({cmdStream})
-  const resultStream = await jsm.streams.get(cmdResultStreamName).catch(()=>null) ?? await jsm.streams.add({
+
+  await jsm.streams.get(cmdResultStreamName).catch(()=>null) ?? await jsm.streams.add({
     name: cmdResultStreamName,
     mirror: {
       domain: satelliteDomain,
       name: cmdStreamName,
     }
   })
-  console.log({ resultStream })
   setInterval(() => {
     mainNc.publish(`space.service.${Math.floor(Math.random() * 10)}.commands.${Math.floor(Math.random())}`, sc.encode('some'))
     console.log('published!')
