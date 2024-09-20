@@ -1,9 +1,8 @@
-import { createLeafGwConnection } from "../leaf-gw/create-leaf-gw-connection";
 import { createLeafConnection } from "../leaf/setupLeafMirrors";
 import { createMainConnect } from "../main/create-main.connect";
 
 const main = async () => {
-  const {leafGwNc:nc} =  await createLeafGwConnection()
+  const {leafNc: nc} =  await createLeafConnection()
   const subs = nc.subscribe('test')
   console.info('Subscribed to test')
   for await (const sub of subs) {

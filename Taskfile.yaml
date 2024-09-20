@@ -30,6 +30,10 @@ tasks:
     run: once
     cmds:
       - docker compose --profile main up -d --wait
+  nats-*:
+    run: once
+    cmds:
+      - docker compose --profile * up  -d --wait
   nats:satellite:
     run: once
     cmds:
@@ -72,3 +76,54 @@ tasks:
       - nats:all
     cmds:
       - nats bench --js --purge foo --sub 5 --msgs 1000000 --server nats://localhost:4223,nats://localhost:4224,nats://localhost:4225
+
+  # Задача для проверки доступности хоста
+  check-host:
+    desc: Проверка доступности хоста
+    cmds:
+      - |
+        docker exec {{.HOST_CONTAINER}} sh -c 'wget --no-verbose --tries=1 --spider http://{{.TARGET_HOST}}:8222/healthz > /dev/null 2>&1 && echo "Host {{.TARGET_HOST}} доступен" || echo "Host {{.TARGET_HOST}} недоступен"'
+    silent: true
+
+  # Internal задача для обновления /etc/hosts в контейнере
+  set-host:
+    desc: 'Internal: Обновление /etc/hosts в контейнере'
+    cmds:
+      - |
+        echo '{{`sss`}}'
+        # docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' {{.TARGET_CONTAINER}}
+        
+        IP="$(docker inspect -f '{{`{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}`}}' {{.TARGET_CONTAINER}})"
+        
+        echo "$IP {{.DNS_NAME}}"
+        
+        docker exec {{.HOST_CONTAINER}} sh -c "echo \"$IP {{.DNS_NAME}}\" >> /etc/hosts"
+    silent: true
+
+  # Привязка nats-leaf-gw к имени nats-leaf-discovered
+  set-1:
+    desc: Привязка nats-leaf-gw к имени nats-leaf-discovered
+    cmds:
+      - task: set-host
+        vars:
+          HOST_CONTAINER: nats-agent-leaf
+          TARGET_CONTAINER: nats-leaf-gw
+          DNS_NAME: nats-leaf-discovered
+      - task: check-host
+        vars:
+          HOST_CONTAINER: nats-agent-leaf
+          TARGET_HOST: nats-leaf-discovered
+
+  # Привязка nats-leaf-gw2 к имени nats-leaf-discovered
+  set-2:
+    desc: Привязка nats-leaf-gw2 к имени nats-leaf-discovered
+    cmds:
+      - task: set-host
+        vars:
+          HOST_CONTAINER: nats-agent-leaf
+          TARGET_CONTAINER: nats-leaf-gw2
+          DNS_NAME: nats-leaf-discovered
+      - task: check-host
+        vars:
+          HOST_CONTAINER: nats-agent-leaf
+          TARGET_HOST: nats-leaf-discovered

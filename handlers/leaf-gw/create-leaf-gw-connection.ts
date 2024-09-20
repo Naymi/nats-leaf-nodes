@@ -2,8 +2,8 @@ import { connect, JetStreamClient, NatsConnection } from "nats";
 import { leafGwDomain, leafGwNodes, satelliteDomain, satelliteNodes } from "../constants";
 
 export async function createLeafGwConnection(): Promise<{
-  satelliteNc: NatsConnection,
-  satelliteJs: JetStreamClient
+  leafGwNc: NatsConnection,
+  leafGwJs: JetStreamClient
   nc: NatsConnection,
   js: JetStreamClient
 }> {
@@ -12,8 +12,8 @@ export async function createLeafGwConnection(): Promise<{
     domain: leafGwDomain
   });
   return {
-    satelliteNc: satelliteNc,
-    satelliteJs: satelliteJs,
+    leafGwNc: satelliteNc,
+    leafGwJs: satelliteJs,
     nc: satelliteNc,
     js: satelliteJs
   };
