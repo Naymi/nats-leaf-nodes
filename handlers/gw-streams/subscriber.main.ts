@@ -14,7 +14,7 @@ const main = async () => {
   const subs = await c.consume();
   console.info('Subscribed to ' + toMainStream)
   for await (const sub of subs) {
-    console.log(sub.string());
+    console.log(`Received: ${sub.subject} - ${sub.string()}`);
   }
 }
 

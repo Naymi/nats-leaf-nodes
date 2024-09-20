@@ -1,15 +1,16 @@
 import { nanoid } from "nanoid";
 import { StringCodec } from "nats";
-import { reqToMainSubj } from "../gw-streams/constants";
+import { createAgentConnect } from "../agent/create-agent.connect";
 import { createMainConnect } from "../main/create-main.connect";
 
-const serverName = 'main'
+const serverName = 'agent'
+
 const main = async () => {
-  const {mainNc:nc} =  await createMainConnect()
-  const subs = nc.subscribe(reqToMainSubj, {
+  const {nc} =  await createAgentConnect()
+  const subs = nc.subscribe('test', {
 //    queue: 'test',
   })
-  console.info(`Subscribed to ${reqToMainSubj}`)
+  console.info('Subscribed to test')
   for await (const sub of subs) {
     console.log(sub.string(), sub.reply);
     let rspMessage: string = `response #${nanoid()} from ${serverName}`;

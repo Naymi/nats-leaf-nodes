@@ -20,30 +20,24 @@ export const satelliteNodes = [
 ];
 export const satelliteDomain: string = 'satellite';
 export const leafGwNodes = [
-  "nats://localhost:4623",
-  "nats://localhost:4624",
-  "nats://localhost:4625",
+  "nats://localhost:4522"
 ];
 export const leafGwDomain: string = 'leaf-gw';
 
 export const leafGw2Nodes = [
-  "nats://localhost:4723",
-  "nats://localhost:4724",
-  "nats://localhost:4725",
+  "nats://localhost:4622"
 ];
 export const leafGw2Domain: string = 'leaf-gw';
 
 export const agentNodes = [
-  "nats://localhost:4823",
-  "nats://localhost:4824",
-  "nats://localhost:4825",
+  "nats://localhost:4722",
 ];
 export const agentDomain: string = 'agent-leaf';
 //export const satelliteArgsKvName = "space-0-args";
 //export const satelliteResultKvName = "space-0-result";
 
 export const leafNodes = [
-  "nats://localhost:4523",
+  "nats://localhost:4422",
 //  "nats://localhost:4524",
 //  "nats://localhost:4525"
 ];

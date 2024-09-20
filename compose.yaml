@@ -54,8 +54,7 @@ services:
       - "4322:4222"
       - "6322:6222"
       - "8322:8222"
-      - "7322:7222"
-      - "7522:7422" # Порт для leaf узлов
+      - "7322:7422" # Порт для leaf узлов
     command: -c /etc/nats/satellite.conf
     <<: *common
 
@@ -66,7 +65,7 @@ services:
       - "4323:4222"
       - "6323:6222"
       - "8323:8222"
-      - "7523:7422" # Порт для leaf узлов
+      - "7323:7422" # Порт для leaf узлов
     command: -c /etc/nats/satellite1.conf
     <<: *common
 
@@ -88,9 +87,9 @@ services:
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4523:4222"
-      - "6523:6222"
-      - "8523:8222"
+      - "4422:4222"
+      - "6422:6222"
+      - "8422:8222"
     command: -c /etc/nats/leaf.conf
     extra_hosts:
       - outside.world.ip:host-gateway
@@ -103,9 +102,9 @@ services:
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4524:4222"
-      - "6524:6222"
-      - "8524:8222"
+      - "4423:4222"
+      - "6423:6222"
+      - "8423:8222"
     command: -c /etc/nats/leaf1.conf
     extra_hosts:
       - outside.world.ip:host-gateway
@@ -118,9 +117,9 @@ services:
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4525:4222"
-      - "6525:6222"
-      - "8525:8222"
+      - "4424:4222"
+      - "6424:6222"
+      - "8424:8222"
     command: -c /etc/nats/leaf2.conf
     extra_hosts:
       - outside.world.ip:host-gateway
@@ -134,9 +133,9 @@ services:
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4623:4222"
-      - "6623:6222"
-      - "8923:8222"
+      - "4522:4222"
+      - "6523:6222"
+      - "8523:8222"
     command: -c /etc/nats/leaf-gw/leaf.conf
     extra_hosts:
       - outside.world.ip:host-gateway
@@ -150,9 +149,9 @@ services:
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4723:4222"
-      - "6723:6222"
-      - "8723:8222"
+      - "4622:4222"
+      - "6623:6222"
+      - "8623:8222"
     command: -c /etc/nats/leaf-gw2/leaf.conf
     extra_hosts:
       - outside.world.ip:host-gateway
@@ -165,9 +164,9 @@ services:
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4825:4222"
-      - "6825:6222"
-      - "8825:8222"
+      - "4722:4222"
+      - "6722:6222"
+      - "8722:8222"
     command: -c /etc/nats/agent/agent.conf
     extra_hosts:
       - outside.world.ip:host-gateway

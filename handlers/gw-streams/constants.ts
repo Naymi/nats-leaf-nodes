@@ -7,4 +7,9 @@ export let getFromMainStreamSubj = ()=>{
 export let getToMainStreamSubj = ()=>{
   return 'to.main.' + nanoid()
 }
+const _reqToMainSubj: string = 'req.to.main.';
+export const reqToMainSubj: string = _reqToMainSubj + '*';
+export let getReqToMainSubj = ()=>{
+  return _reqToMainSubj + nanoid()
+}
 export let toMainStream = 'to-main';
