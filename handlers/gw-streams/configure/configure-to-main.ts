@@ -5,7 +5,7 @@ import { createLeafGw2Connection } from "../../leaf-gw2/create-leaf-gw-connectio
 import { createLeafConnection } from "../../leaf/setupLeafMirrors";
 import { createMainConnect } from "../../main/create-main.connect";
 import { createSatelliteConnection } from "../../satellite/create-satellite-connection";
-import { toMainStream } from "../constants";
+import { toMainStream, toMainSubj } from "../constants";
 
 const main = async () => {
   const { mainJs } = await createMainConnect()
@@ -25,7 +25,7 @@ const main = async () => {
   console.log('create agent stream')
   await agentJsm.streams.add({
     name: toMainStream,
-    subjects: ['to.main.>']
+    subjects: [toMainSubj]
   })
   console.log('create to gw from agent stream')
   await leafGwJsm.streams.add({

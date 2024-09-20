@@ -2,8 +2,6 @@ import { nanoid } from "nanoid";
 import { StringCodec } from "nats";
 import { createAgentConnect } from "../agent/create-agent.connect";
 import { getToMainStreamSubj } from "../gw-streams/constants";
-import { createMainConnect } from "../main/create-main.connect";
-
 
 const main = async () => {
   console.log('create connection')

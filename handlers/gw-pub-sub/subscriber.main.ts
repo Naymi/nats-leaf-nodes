@@ -1,10 +1,10 @@
+import { toMainSubj } from "../gw-streams/constants";
 import { createMainConnect } from "../main/create-main.connect";
 
 const main = async () => {
   const {mainNc} =  await createMainConnect()
-  let subj = 'to.main.*';
-  const subs = mainNc.subscribe(subj)
-  console.info(`Subscribed by '${subj}'`)
+  const subs = mainNc.subscribe(toMainSubj)
+  console.info(`Subscribed by '${toMainSubj}'`)
   for await (const sub of subs) {
     console.log(sub.subject, sub.string());
   }
