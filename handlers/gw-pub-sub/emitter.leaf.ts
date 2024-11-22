@@ -1,5 +1,4 @@
-import { StringCodec } from "nats";
-import { createLeafGwConnection } from "../leaf-gw/create-leaf-gw-connection";
+import { RequestStrategy, StringCodec } from "nats";
 import { createLeafConnection } from "../leaf/setupLeafMirrors";
 
 
@@ -8,6 +7,18 @@ const main = async () => {
   const {leafNc:nc} =  await createLeafConnection()
   console.log('connection created')
   await nc.publish('test', StringCodec().encode('hello fron leaf'))
+  await nc.requestMany('', '', {
+    strategy: RequestStrategy.SentinelMsg,
+
+  })
+
+  nc.subscribe('',{
+    callback: (_, msg)=>{
+      msg.respond('', {
+
+      })
+    },
+  })
   console.log('Published!')
   await nc.close()
 }

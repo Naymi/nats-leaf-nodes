@@ -51,33 +51,66 @@ services:
     container_name: nats-satellite
     image: nats:alpine
     ports:
-      - "4322:4222"
-      - "6322:6222"
-      - "8322:8222"
-      - "7322:7422" # Порт для leaf узлов
-    command: -c /etc/nats/satellite.conf
+      - "4232:4222"
+      - "6232:6222"
+      - "8232:8222"
+      - "7432:7422" # Порт для leaf узлов
+    command: -c /etc/nats/satellite/satellite.conf
     <<: *common
 
-  nats-satellite1:
-    container_name: nats-satellite1
+  nats-satellite-1:
+    container_name: nats-satellite-1
     image: nats:alpine
     ports:
-      - "4323:4222"
-      - "6323:6222"
-      - "8323:8222"
-      - "7323:7422" # Порт для leaf узлов
-    command: -c /etc/nats/satellite1.conf
+      - "4233:4222"
+      - "6233:6222"
+      - "8233:8222"
+      - "7433:7422" # Порт для leaf узлов
+    command: -c /etc/nats/satellite/satellite1.conf
+    <<: *common
+
+  nats-satellite-2:
+    container_name: nats-satellite-2
+    image: nats:alpine
+    ports:
+      - "4244:4222"
+      - "6244:6222"
+      - "8244:8222"
+      - "7444:7422" # Порт для leaf узлов
+    command: -c /etc/nats/satellite/satellite2.conf
     <<: *common
 
   nats-satellite2:
     container_name: nats-satellite2
     image: nats:alpine
     ports:
-      - "4324:4222"
-      - "6324:6222"
-      - "8324:8222"
-      - "7524:7422" # Порт для leaf узлов
-    command: -c /etc/nats/satellite2.conf
+      - "4422:4222"
+      - "6422:6222"
+      - "8422:8222"
+      - "7422:7422" # Порт для leaf узлов
+    command: -c /etc/nats/satellite/satellite.conf
+    <<: *common
+
+  nats-satellite2-1:
+    container_name: nats-satellite2-1
+    image: nats:alpine
+    ports:
+      - "4423:4222"
+      - "6423:6222"
+      - "8423:8222"
+      - "7423:7422" # Порт для leaf узлов
+    command: -c /etc/nats/satellite/satellite1.conf
+    <<: *common
+
+  nats-satellite2-2:
+    container_name: nats-satellite2-2
+    image: nats:alpine
+    ports:
+      - "4424:4222"
+      - "6424:6222"
+      - "8424:8222"
+      - "7424:7422" # Порт для leaf узлов
+    command: -c /etc/nats/satellite/satellite2.conf
     <<: *common
 
   nats-leaf:
@@ -87,10 +120,10 @@ services:
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4422:4222"
-      - "6422:6222"
-      - "8422:8222"
-    command: -c /etc/nats/leaf.conf
+      - "4522:4222"
+      - "6522:6222"
+      - "8522:8222"
+    command: -c /etc/nats/leaf/leaf.conf
     extra_hosts:
       - outside.world.ip:host-gateway
     <<: *common
@@ -102,10 +135,10 @@ services:
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4423:4222"
-      - "6423:6222"
-      - "8423:8222"
-    command: -c /etc/nats/leaf1.conf
+      - "4523:4222"
+      - "6523:6222"
+      - "8523:8222"
+    command: -c /etc/nats/leaf/leaf1.conf
     extra_hosts:
       - outside.world.ip:host-gateway
     <<: *common
@@ -117,10 +150,10 @@ services:
       - NET_RAW
     image: nats:alpine
     ports:
-      - "4424:4222"
-      - "6424:6222"
-      - "8424:8222"
-    command: -c /etc/nats/leaf2.conf
+      - "4524:4222"
+      - "6524:6222"
+      - "8524:8222"
+    command: -c /etc/nats/leaf/leaf2.conf
     extra_hosts:
       - outside.world.ip:host-gateway
     <<: *common

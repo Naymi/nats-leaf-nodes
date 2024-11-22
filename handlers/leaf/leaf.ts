@@ -1,3 +1,4 @@
+import { RetentionPolicy } from "nats";
 import {
   argsKvName,
   cmdResultStreamName,
@@ -14,8 +15,8 @@ const main = async ()=>{
   const argsKv = await leafJs.views.kv(argsKvName, {
     mirror: {
       domain: mainDomain,
-      name: argsKvName
-    }
+      name: argsKvName,
+    },
   })
   const resultKv = await leafJs.views.kv(resultKvName, {
     mirror: {
@@ -29,7 +30,7 @@ const main = async ()=>{
     mirror: {
       domain: satelliteDomain,
       name: cmdResultStreamName
-    }
+    },
   })
   console.log(resultStreamMirror);
   const cmdStreamMirror = await jsm.streams.add({
