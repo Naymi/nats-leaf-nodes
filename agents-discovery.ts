@@ -2,15 +2,10 @@ import { JetStreamClient, JetStreamManager, RetentionPolicy } from "nats";
 import * as t from 'node:timers/promises'
 import { DockerComposeEnvironment, StartedDockerComposeEnvironment } from "testcontainers";
 import {
-  agentNodes,
-  bridgeDomain,
-  bridgeNodes,
-  gw1Nodes,
-  gw2Nodes,
-  space1Nodes,
-  space2Nodes
+  agentNodes, bridgeDomain, bridgeNodes, gw1Nodes, gw2Nodes, space1Nodes, space2Nodes
 } from "./handlers/constants";
 import { createMainConnect } from "./handlers/main/create-main.connect";
+import { setupInput } from "./trash/setup.input";
 import { changeGw, getInfo } from "./tt";
 import { createNatsConnectionFactory } from "./utils/creator-factory";
 
@@ -100,6 +95,8 @@ const main = async () => {
   } = await createAgentConn()
   console.log('createAgentConn connected')
 
+  await setupInput(bridgeJsm, mainJsm, space1Jsm, space2Jsm, gw1Jsm, gw2Jsm, agent1Jsm, space1DomainName, gw1DomainName, space2DomainName)
+
   await agent1Jsm.streams.add({
     name: agentOutputStreamName,
     subjects: ['output.*'],
@@ -166,8 +163,7 @@ const main = async () => {
       {
         name: space1OutputMainStreamName,
         domain: bridgeDomain
-      },
-      {
+      }, {
         name: space2OutputMainStreamName,
         domain: bridgeDomain
       }
@@ -226,7 +222,7 @@ const main = async () => {
 //      await t.setTimeout(1e3)
 //    }
 //  })()
-  const listStreams = async (ncName: string, jsm: JetStreamManager)=>{
+  const listStreams = async (ncName: string, jsm: JetStreamManager) => {
     const streams = await jsm.streams.list()
     const x = []
     for await (const stream of streams) {
@@ -245,7 +241,8 @@ const main = async () => {
     handleMessage(agent1Js, agentOutputStreamName, 'agentJs'),
     handleMessage(gw1Js, agentsOutputStreamName, 'gw1Js'),
     handleMessage(space1Js, spaceOutputStreamName, 'space1Js'),
-    handleMessage(mainJs, spacesOutputsMainStream, 'mainJs')
+    handleMessage(mainJs, spacesOutputsMainStream, 'mainJs'),
+    handleMessage(agent1Js, 'agents-input', 'agent1Js')
   ])
 
 
@@ -253,7 +250,7 @@ const main = async () => {
 
 
   console.log('try 2 ------------------');
-  for (let i = 20; i > 0; i--) {
+  for (let i = 5; i > 0; i--) {
     await t.setTimeout(1e3)
     console.log(i)
   }
@@ -277,13 +274,20 @@ const main = async () => {
       }
     })
     console.log({ x });
+    const x2 = await mainJs.publish('input.z' + i, undefined, {
+      expect: {
+        streamName: 'agents-input'
+      }
+    })
+    console.log({ x2 });
 
     console.log('has gw2 before ', (await getInfo()).hasGw2);
     await changeGw()
     console.log('has gw2 after ', (await getInfo()).hasGw2);
 
     console.log('restarting...');
-    await env.getContainer('nats-agent').restart()
+    await env.getContainer('nats-agent')
+      .restart()
     console.log('restarted');
 
     for (let i = 10; i > 0; i--) {
@@ -297,9 +301,9 @@ main()
 //  .catch(console.error)
 //  .finally(() => env.down())
 
-process.on('SIGHUP', async ()=>{
+process.on('SIGHUP', async () => {
   await env.down()
 })
-process.on('SIGINT', async ()=>{
+process.on('SIGINT', async () => {
   await env.down()
 })

@@ -1,51 +1,63 @@
 import { JetStreamManager } from "nats";
-import { mainDomain } from "../handlers/constants";
+import { bridgeDomain, mainDomain } from "../handlers/constants";
+import { agentsInputStreamName } from "./constants";
 
-export async function setupInput(mainJsm: JetStreamManager, space1Jsm: JetStreamManager, space2Jsm: JetStreamManager, gw1Jsm: JetStreamManager, gw2Jsm: JetStreamManager, agentJsm: JetStreamManager): Promise<void> {
+export async function setupInput(mainJsm: JetStreamManager, bridgeJsm: JetStreamManager, space1Jsm: JetStreamManager, space2Jsm: JetStreamManager, gw1Jsm: JetStreamManager, gw2Jsm: JetStreamManager, agentJsm: JetStreamManager, space1DomainName: string, gw1DomainName: string, space2DomainName: string): Promise<void> {
   await mainJsm.streams.add({
-    name: 'agents-input'
+    name: agentsInputStreamName,
+    subjects: [
+      'input.>'
+    ]
   })
   console.log('agents-input created')
 
-  await space1Jsm.streams.add({
-    name: 'agents-input',
+  await bridgeJsm.streams.add({
+    name: agentsInputStreamName,
     mirror: {
-      domain: mainDomain,
-      name: 'agents-input'
+      name: agentsInputStreamName,
+      domain: mainDomain
+    }
+  })
+
+  await space1Jsm.streams.add({
+    name: agentsInputStreamName,
+    mirror: {
+      domain: bridgeDomain,
+      name: agentsInputStreamName
     }
   })
   await space2Jsm.streams.add({
-    name: 'agents-input',
+    name: agentsInputStreamName,
     mirror: {
-      domain: mainDomain,
-      name: 'agents-input'
+      domain: bridgeDomain,
+      name: agentsInputStreamName
     }
   })
 
   console.log('space2Jsm, agents-input1 created')
 
   await gw1Jsm.streams.add({
-    name: 'agents-input',
+    name: agentsInputStreamName,
     mirror: {
       domain: space1DomainName,
-      name: 'agents-input'
+      name: agentsInputStreamName
     }
   })
   console.log('gw1Jsm, agents-input created')
   await gw2Jsm.streams.add({
-    name: 'agents-input',
+    name: agentsInputStreamName,
     mirror: {
       domain: space2DomainName,
-      name: 'agents-input'
+      name: agentsInputStreamName
     }
   })
   console.log('gw2Jsm, agents-input created')
   await agentJsm.streams.add({
-    name: 'agents-input',
-    mirror: {
+    name: agentsInputStreamName,
+    sources: [{
       domain: gw1DomainName,
-      name: 'agents-input'
-    }
+      name: agentsInputStreamName
+    }]
   })
   console.log('agentJsm, agents-input created')
 }
