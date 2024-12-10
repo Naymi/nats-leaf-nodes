@@ -154,7 +154,7 @@ const main = async () => {
   ]);
   (async ()=>{
     while (true) {
-      console.log('------------')
+//      console.log('------------')
 
       await t.setTimeout(1e3)
     }
