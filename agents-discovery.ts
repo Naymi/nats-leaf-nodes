@@ -159,9 +159,16 @@ const main = async () => {
     ]
   })
 
+  console.log('------------------');
+  for (let i = 4; i > 0; i--) {
+    await t.setTimeout(1e3)
+    console.log(i)
+  }
+  console.log('------------------');
+
+
   ;(async ()=>{
     for await (const void1 of t.setInterval(2e3)) {
-
       await agent1Js.publish('output.x', undefined, {
         expect: {
           streamName: agentOutputStreamName
@@ -172,13 +179,6 @@ const main = async () => {
     }
 
   })()
-
-  console.log('------------------');
-  for (let i = 4; i > 0; i--) {
-    await t.setTimeout(1e3)
-    console.log(i)
-  }
-  console.log('------------------');
 
   await Promise.all([
     handleMessage(agent1Js, agentOutputStreamName, 'agentJs'),
