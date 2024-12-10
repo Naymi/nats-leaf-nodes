@@ -1,4 +1,4 @@
-import { JetStreamClient, JetStreamManager } from "nats";
+import { JetStreamClient, JetStreamManager, RetentionPolicy } from "nats";
 import * as t from 'node:timers/promises'
 import { DockerComposeEnvironment, StartedDockerComposeEnvironment } from "testcontainers";
 import { agentNodes, bridgeDomain, bridgeNodes, gw1Nodes, mainDomain, space1Nodes } from "./handlers/constants";
@@ -23,7 +23,7 @@ const createSpace1Conn = createNatsConnectionFactory(space1DomainName, space1Nod
 const createGw1Conn = createNatsConnectionFactory(gw1DomainName, gw1Nodes)
 //const createGw2Conn = createNatsConnectionFactory(gw2DomainName, gw2Nodes)
 const createAgentConn = createNatsConnectionFactory(agent1DomainName, agentNodes)
-const createBridgeConn = createNatsConnectionFactory(bridgeDomain, bridgeNodes, mainDomain)
+const createBridgeConn = createNatsConnectionFactory(bridgeDomain, bridgeNodes)
 
 let env: StartedDockerComposeEnvironment
 
@@ -85,7 +85,8 @@ const main = async () => {
 
   await agent1Jsm.streams.add({
     name: agentOutputStreamName,
-    subjects: ['output.*']
+    subjects: ['output.*'],
+    retention: RetentionPolicy.Workqueue
   })
 
   await gw1Jsm.streams.add({
@@ -120,7 +121,8 @@ const main = async () => {
     name: spacesOutputsMainStream,
     sources: [
       {
-        name: spaceOutputMainStreamName
+        name: spaceOutputMainStreamName,
+        domain: bridgeDomain
       }
     ]
   })
@@ -182,4 +184,8 @@ const main = async () => {
 
 main()
   .catch(console.error)
-//  .finally(() => env.down())
+  .finally(() => env.down())
+
+process.on('SIGHUP', async ()=>{
+  await env.down()
+})
