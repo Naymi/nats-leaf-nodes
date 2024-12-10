@@ -189,3 +189,6 @@ main()
 process.on('SIGHUP', async ()=>{
   await env.down()
 })
+process.on('SIGINT', async ()=>{
+  await env.down()
+})
