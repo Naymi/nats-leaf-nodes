@@ -185,7 +185,7 @@ const main = async () => {
     handleMessage(gw1Js, agentsOutputStreamName, 'gw1Js'),
     handleMessage(space1Js, spaceOutputStreamName, 'space1Js'),
     handleMessage(mainJs, spacesOutputsMainStream, 'mainJs'),
-    t.setTimeout(6e3).then(()=>Promise.reject(new Error('timeout')))
+    t.setTimeout(10e3).then(()=>Promise.reject(new Error('timeout')))
   ])
 
   console.log('finished');
