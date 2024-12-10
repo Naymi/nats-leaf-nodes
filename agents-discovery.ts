@@ -1,4 +1,4 @@
-import { JetStreamClient } from "nats";
+import { JetStreamClient, JetStreamManager } from "nats";
 import * as t from 'node:timers/promises'
 import { DockerComposeEnvironment, StartedDockerComposeEnvironment } from "testcontainers";
 import { agentNodes, gw1Nodes, mainDomain, space1Nodes } from "./handlers/constants";
@@ -138,12 +138,35 @@ const main = async () => {
 
   })()
 
+  const listStreams = async (ncName: string, jsm: JetStreamManager)=>{
+    const streams = await jsm.streams.list()
+    const x = []
+    for await (const stream of streams) {
+      x.push(stream.config.name)
+    }
+    console.log(ncName, x)
+  }
+  await Promise.all([
+    listStreams('agent1Js', agent1Jsm),
+    listStreams('gw1Js', gw1Jsm),
+    listStreams('space1Js', space1Jsm),
+    listStreams('mainJs', mainJsm),
+  ]);
+  (async ()=>{
+    while (true) {
+      console.log('------------')
+
+      await t.setTimeout(1e3)
+    }
+  })()
+
   await Promise.all([
     handleMessage(agent1Js, agentOutputStreamName, 'agentJs'),
     handleMessage(gw1Js, agentsOutputStreamName, 'gw1Js'),
     handleMessage(space1Js, spaceOutputStreamName, 'space1Js'),
     handleMessage(mainJs, spacesOutputsMainStream, 'mainJs')
   ])
+
 
   console.log('finished');
 }
