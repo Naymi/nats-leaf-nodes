@@ -2,7 +2,7 @@ import { connect, JetStreamClient, JetStreamManager, NatsConnection } from "nats
 import { createNatsConnectionFactory } from "../../utils/creator-factory";
 import { mainDomain, mainNodes } from "../constants";
 
-export const createMainConnect = createNatsConnectionFactory('main', mainNodes)
+export const createMainConnect = createNatsConnectionFactory(mainDomain, mainNodes)
 
 
 export async function crea1teMainConnect(): Promise<{

@@ -1,7 +1,7 @@
 import { JetStreamClient, JetStreamManager } from "nats";
 import * as t from 'node:timers/promises'
 import { DockerComposeEnvironment, StartedDockerComposeEnvironment } from "testcontainers";
-import { agentNodes, gw1Nodes, mainDomain, space1Nodes } from "./handlers/constants";
+import { agentNodes, bridgeDomain, bridgeNodes, gw1Nodes, mainDomain, space1Nodes } from "./handlers/constants";
 import { createMainConnect } from "./handlers/main/create-main.connect";
 import { createNatsConnectionFactory } from "./utils/creator-factory";
 
@@ -23,6 +23,7 @@ const createSpace1Conn = createNatsConnectionFactory(space1DomainName, space1Nod
 const createGw1Conn = createNatsConnectionFactory(gw1DomainName, gw1Nodes)
 //const createGw2Conn = createNatsConnectionFactory(gw2DomainName, gw2Nodes)
 const createAgentConn = createNatsConnectionFactory(agent1DomainName, agentNodes)
+const createBridgeConn = createNatsConnectionFactory(bridgeDomain, bridgeNodes, mainDomain)
 
 let env: StartedDockerComposeEnvironment
 
@@ -57,6 +58,13 @@ const main = async () => {
     space1Js
   } = await createSpace1Conn()
   console.log('space1Js connected')
+
+  console.log('bridgeJs connecting')
+  const {
+    bridgeJsm,
+    bridgeJs
+  } = await createBridgeConn()
+  console.log('bridgeJs connected')
 
   console.log('createSpace2Conn connected')
 
@@ -98,19 +106,20 @@ const main = async () => {
     subjects: ['spaces.>']
   })
 
-  await mainJsm.streams.add({
+  console.log('sss')
+  await (bridgeJsm).streams.add({
     name: spaceOutputMainStreamName,
     mirror: {
       domain: space1DomainName,
       name: spaceOutputStreamName
     }
   })
+  console.log('sssxxxxx')
 
   await mainJsm.streams.add({
     name: spacesOutputsMainStream,
     sources: [
       {
-        domain: mainDomain,
         name: spaceOutputMainStreamName
       }
     ]
@@ -173,4 +182,4 @@ const main = async () => {
 
 main()
   .catch(console.error)
-  .finally(() => env.down())
+//  .finally(() => env.down())

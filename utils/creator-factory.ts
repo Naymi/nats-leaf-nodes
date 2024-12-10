@@ -14,6 +14,7 @@ export const createNatsConnectionFactory = <T extends string>(name: T, servers: 
     js: JetStreamClient
   }> => {
     const nc = await connect({ servers });
+    console.log(name, ' - ', domain)
     const js = nc.jetstream({
       domain: domain
     });
