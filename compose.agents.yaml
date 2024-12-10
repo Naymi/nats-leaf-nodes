@@ -1,0 +1,94 @@
+name: 'agents'
+
+x-healthcheck: &common
+  healthcheck:
+    test: wget --no-verbose --tries=1 --spider http://localhost:8222/healthz || exit 1
+    interval: 2s
+    start_period: 1s
+    timeout: 3s
+  volumes:
+    - ./nats-agents:/etc/nats:ro
+
+services:
+  nats-main:
+    container_name: nats-main
+    <<: *common
+    image: nats:alpine
+    command: -c /etc/nats/main.conf
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  nats-bridge:
+    container_name: nats-bridge
+    <<: *common
+    image: nats:alpine
+    command: -c /etc/nats/bridge.conf
+    ports:
+      - "4322:4222"
+      - "8322:8222"
+    depends_on:
+      nats-main:
+        condition: service_healthy
+
+  nats-space1:
+    container_name: nats-space1
+    <<: *common
+    image: nats:alpine
+    command: -c /etc/nats/space1.conf
+    ports:
+      - "4422:4222"
+      - "8422:8222"
+    depends_on:
+      nats-bridge:
+        condition: service_healthy
+
+  nats-space2:
+    container_name: nats-space2
+    <<: *common
+    image: nats:alpine
+    command: -c /etc/nats/space2.conf
+    ports:
+      - "4522:4222"
+      - "8522:8222"
+    depends_on:
+      nats-bridge:
+        condition: service_healthy
+
+  nats-gw1:
+    container_name: nats-gw1
+    <<: *common
+    image: nats:alpine
+    command: -c /etc/nats/gw1.conf
+    ports:
+      - "4622:4222"
+      - "8622:8222"
+    depends_on:
+      nats-space1:
+        condition: service_healthy
+
+  nats-gw2:
+    container_name: nats-gw2
+    <<: *common
+    image: nats:alpine
+    command: -c /etc/nats/gw2.conf
+    ports:
+      - "4722:4222"
+      - "8722:8222"
+    depends_on:
+      nats-space2:
+        condition: service_healthy
+
+  nats-agent:
+    container_name: nats-agent
+    <<: *common
+    image: nats:alpine
+    command: -c /etc/nats/agent.conf
+    ports:
+      - "4822:4222"
+      - "8822:8222"
+    depends_on:
+      nats-gw1:
+        condition: service_healthy
+      nats-gw2:
+        condition: service_healthy
