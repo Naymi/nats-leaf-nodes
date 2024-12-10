@@ -1,9 +1,15 @@
-import { connect, JetStreamClient, NatsConnection } from "nats";
+import { connect, JetStreamClient, JetStreamManager, NatsConnection } from "nats";
+import { createNatsConnectionFactory } from "../../utils/creator-factory";
 import { mainDomain, mainNodes } from "../constants";
 
-export async function createMainConnect(): Promise<{
+export const createMainConnect = createNatsConnectionFactory('main', mainNodes)
+
+
+export async function crea1teMainConnect(): Promise<{
   mainNc: NatsConnection,
   mainJs: JetStreamClient
+  mainJsm: JetStreamManager
+  jsm: JetStreamManager
   nc: NatsConnection,
   js: JetStreamClient
 }> {
@@ -11,10 +17,14 @@ export async function createMainConnect(): Promise<{
   const mainJs = mainNc.jetstream({
     domain: mainDomain
   });
+
+  const mainJsm = await mainJs.jetstreamManager()
   return {
     mainNc,
     mainJs,
-    js: mainJs,
+    mainJsm,
     nc: mainNc,
+    js: mainJs,
+    jsm: mainJsm,
   };
 }

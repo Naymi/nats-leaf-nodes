@@ -95,12 +95,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testcontainers/nats@npm:^10.14.0":
-  version: 10.14.0
-  resolution: "@testcontainers/nats@npm:10.14.0"
+"@testcontainers/nats@npm:^10.16.0":
+  version: 10.16.0
+  resolution: "@testcontainers/nats@npm:10.16.0"
   dependencies:
-    testcontainers: "npm:^10.14.0"
-  checksum: 10c0/10cc1ccf3aace7640b92e04b9ce31587739d58f62a45439f3a5473d68d64a74e14067ef71c0f9640e175e6824470bdeee62ba4fbdf27603a11d387502cf0d149
+    testcontainers: "npm:^10.16.0"
+  checksum: 10c0/ebb97360652437e8a17e87a716ddce25ef529b33ce0428ba12b3a55d883feca1be9995d4c979f531103837bbdb00fe74a482792a4db27d1cdb537d61d9c00f4e
   languageName: node
   linkType: hard
 
@@ -1420,7 +1420,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "nats-sandbox@workspace:."
   dependencies:
-    "@testcontainers/nats": "npm:^10.14.0"
+    "@testcontainers/nats": "npm:^10.16.0"
     "@types/lodash": "npm:^4"
     "@types/node": "npm:^20.14.10"
     colors: "npm:^1.4.0"
@@ -1428,6 +1428,7 @@ __metadata:
     nanoid: "npm:3"
     nats: "npm:^2.28.2"
     nodemon: "npm:^3.1.4"
+    testcontainers: "npm:^10.16.0"
     ts-node: "npm:^10.9.2"
     ts-node-dev: "npm:^2.0.0"
     typescript: "npm:^5.5.3"
@@ -2097,9 +2098,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"testcontainers@npm:^10.14.0":
-  version: 10.14.0
-  resolution: "testcontainers@npm:10.14.0"
+"testcontainers@npm:^10.16.0":
+  version: 10.16.0
+  resolution: "testcontainers@npm:10.16.0"
   dependencies:
     "@balena/dockerignore": "npm:^1.0.2"
     "@types/dockerode": "npm:^3.3.29"
@@ -2116,7 +2117,7 @@ __metadata:
     tar-fs: "npm:^3.0.6"
     tmp: "npm:^0.2.3"
     undici: "npm:^5.28.4"
-  checksum: 10c0/b988205b3402cac4873c6592d6f57d4e4fded1e9fd10a748d861028a961fc9d4a8d97c41bf44da207f9de85b73632c51ec152502aa00ae77cbbc6e57fd02205a
+  checksum: 10c0/17f748927d484e63718e2a745c776d54a893eba08c4fa20b84e5056f2ef45f585e39c7a1ffebea37ec63ae96e71dd50de5a611d4d313f63380bacca52b12737a
   languageName: node
   linkType: hard
 

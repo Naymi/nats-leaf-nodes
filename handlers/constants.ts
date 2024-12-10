@@ -9,6 +9,36 @@ export const mainNodes = [
 //  "nats://localhost:4223",
 //  "nats://localhost:4224"
 ];
+export const bridgeNodes = [
+  "nats://localhost:4322",
+//  "nats://localhost:4223",
+//  "nats://localhost:4224"
+];
+export const space1Nodes = [
+  "nats://localhost:4422",
+//  "nats://localhost:4223",
+//  "nats://localhost:4224"
+];
+export const space2Nodes = [
+  "nats://localhost:4522",
+//  "nats://localhost:4223",
+//  "nats://localhost:4224"
+];
+export const gw1Nodes = [
+  "nats://localhost:4622",
+//  "nats://localhost:4223",
+//  "nats://localhost:4224"
+];
+export const gw2Nodes = [
+  "nats://localhost:4722",
+//  "nats://localhost:4223",
+//  "nats://localhost:4224"
+];
+export const agentNodes = [
+  "nats://localhost:4822",
+//  "nats://localhost:4223",
+//  "nats://localhost:4224"
+];
 export const mainDomain: string = 'main';
 export const argsKvName = "space-0-args";
 export const resultKvName = "space-0-result";
@@ -29,9 +59,6 @@ export const leafGw2Nodes = [
 ];
 export const leafGw2Domain: string = 'leaf-gw';
 
-export const agentNodes = [
-  "nats://localhost:4722",
-];
 export const agentDomain: string = 'agent-leaf';
 //export const satelliteArgsKvName = "space-0-args";
 //export const satelliteResultKvName = "space-0-result";
@@ -42,6 +69,7 @@ export const leafNodes = [
 //  "nats://localhost:4525"
 ];
 export const leafDomain: string = 'leaf';
+export const bridgeDomain: string = 'bridge';
 export let cmdStreamName: string = 'space-0-commands';
 //export const argsKvName = "space-0-args";
 //export const leafResultKvName = "space-0-result";

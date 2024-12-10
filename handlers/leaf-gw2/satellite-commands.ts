@@ -48,6 +48,9 @@ const main = async () => {
       mirror: {
         domain: leafDomain,
         name: cmdStreamName,
+        filter_subjects: [
+          `space.${spaceId}.workload.${workloadId}.commands.${commandType}.${type}`
+        ]
       }
     });
 

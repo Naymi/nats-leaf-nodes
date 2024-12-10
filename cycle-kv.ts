@@ -44,6 +44,7 @@ const main = async () => {
 
   let spaceBarResultKvName: string = 'space-bar-result-kv';
   const spaceBarResultKv = await js.views.kv(spaceBarResultKvName, {
+    bindOnly: true,
     sources: [
       {
         name: spaceAggregatedKvName

@@ -1,4 +1,4 @@
-import { RetentionPolicy } from "nats";
+import { JSONCodec, RetentionPolicy } from "nats";
 import {
   argsKvName,
   cmdResultStreamName,
@@ -32,6 +32,7 @@ const main = async ()=>{
       name: cmdResultStreamName
     },
   })
+  JSONCodec
   console.log(resultStreamMirror);
   const cmdStreamMirror = await jsm.streams.add({
     name: cmdStreamName,
