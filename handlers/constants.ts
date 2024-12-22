@@ -34,8 +34,13 @@ export const gw2Nodes = [
 //  "nats://localhost:4223",
 //  "nats://localhost:4224"
 ];
-export const agentNodes = [
+export const agent1Nodes = [
   "nats://localhost:4822",
+//  "nats://localhost:4223",
+//  "nats://localhost:4224"
+];
+export const agent2Nodes = [
+  "nats://localhost:4922",
 //  "nats://localhost:4223",
 //  "nats://localhost:4224"
 ];

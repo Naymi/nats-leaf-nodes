@@ -2,7 +2,8 @@ import { JetStreamClient, JetStreamManager, KV, KvOptions, RetentionPolicy } fro
 import * as t from 'node:timers/promises'
 import { DockerComposeEnvironment, StartedDockerComposeEnvironment } from "testcontainers";
 import {
-  agentNodes, bridgeDomain, bridgeNodes, gw1Nodes, gw2Nodes, space1Nodes, space2Nodes
+  agent1Nodes, agent2Nodes,
+   bridgeDomain, bridgeNodes, gw1Nodes, gw2Nodes, space1Nodes, space2Nodes
 } from "./handlers/constants";
 import { createMainConnect } from "./handlers/main/create-main.connect";
 import { setupInput } from "./trash/setup.input";
@@ -30,12 +31,14 @@ async function logCount(name: string, js: JetStreamClient, stream: string): Prom
   console.log(name, stream, count)
 }
 
+let agent1ConfPath: string = './nats-agents/agent1.conf';
+let agent2ConfPath: string = './nats-agents/agent2.conf';
 const createSpace1Conn = createNatsConnectionFactory(space1DomainName, space1Nodes)
 const createSpace2Conn = createNatsConnectionFactory(space2DomainName, space2Nodes)
 const createGw1Conn = createNatsConnectionFactory(gw1DomainName, gw1Nodes)
 const createGw2Conn = createNatsConnectionFactory(gw2DomainName, gw2Nodes)
-const createAgent1Conn = createNatsConnectionFactory(agent1DomainName, agentNodes)
-const createAgent2Conn = createNatsConnectionFactory(agent2DomainName, agentNodes)
+const createAgent1Conn = createNatsConnectionFactory(agent1DomainName, agent1Nodes)
+const createAgent2Conn = createNatsConnectionFactory(agent2DomainName, agent2Nodes)
 const createBridgeConn = createNatsConnectionFactory(bridgeDomain, bridgeNodes)
 
 let env: StartedDockerComposeEnvironment
@@ -130,6 +133,46 @@ async function setupOutputStreams(agent1Jsm: JetStreamManager, gw1Jsm: JetStream
   })
 }
 
+async function toggleGw(agent1ConfPath: string): Promise<void> {
+  console.log('has gw2 before ', (await getInfo(agent1ConfPath)).hasGw2);
+  await changeGw(agent1ConfPath)
+  console.log('has gw2 after ', (await getInfo(agent1ConfPath)).hasGw2);
+}
+
+async function sendOutputFromAgent(i: number, agent1Js: JetStreamClient): Promise<any> {
+  console.log('publish 1', i)
+  const x0 = await agent1Js.publish('output.y' + i, undefined, {
+    expect: {
+      streamName: agentOutputStreamName
+    }
+  })
+  console.log({ x0 });
+  console.log('publish 2', i)
+
+
+  const x = await agent1Js.publish('output.z' + i, undefined, {
+    expect: {
+      streamName: agentOutputStreamName
+    }
+  })
+  return x;
+}
+
+async function sendInputFromMain(js: JetStreamClient, i: number): Promise<void> {
+  const x2 = await js.publish('input.z' + i, undefined, {
+    expect: {
+      streamName: 'agents-input'
+    }
+  })
+  console.log({ x2 });
+}
+
+async function setHealth(kv: KV, healthy: boolean, agentName: string): Promise<void> {
+  console.log('setupHealth'.blue, agentName, healthy);
+  await kv.put(agentName, `${agentName} - ${healthy ? 'Healthy' : 'Unhealthy'}`);
+  console.log('setupedHealth'.green, agentName, healthy);
+}
+
 const main = async () => {
   console.log('up')
   env = await new DockerComposeEnvironment('.', './compose.agents.yaml').up()
@@ -164,7 +207,7 @@ const main = async () => {
   const { gw2Jsm, gw2Js } = await createGw2Conn()
   console.log('createGw2Conn connected')
 
-  const { space2Jsm } = await createSpace2Conn()
+  const { space2Jsm, space2Js } = await createSpace2Conn()
   console.log('createSpace2Conn connected')
 
   const {
@@ -202,11 +245,11 @@ const main = async () => {
   const mainHealthKv = await mainJs.views.kv(agentsHealthcheckKvName, {
     sources: [
       {
-        name: `KV_${agentHealthcheckKv}`,
+        name: `KV_${agentsHealthcheckKvName}`,
         domain: gw1DomainName
       },
       {
-        name: `KV_${agentHealthcheckKv}`,
+        name: `KV_${agentsHealthcheckKvName}`,
         domain: gw2DomainName
       },
     ]
@@ -224,12 +267,32 @@ const main = async () => {
   startWatchKv(gw1HealthKv, 'gw1HealthKv');
   startWatchKv(gw2HealthKv, 'gw2HealthKv');
 
-  for await (const void1 of t.setInterval(5e3)) {
-    await agent1HealthKv.put('agent1' , 'agent1Healthy')
-    await agent2HealthKv.put('agent2' , 'agent2Healthy')
-    console.log('health settled!');
-  }
+  await setHealth(agent2HealthKv, true, 'agent2')
+  await setHealth(agent1HealthKv, true, 'agent1')
 
+  await t.setTimeout(5e3)
+
+  await env.getContainer('nats-gw1').stop({remove: false})
+  await env.getContainer('nats-gw2').stop({remove: false})
+  console.log('gw stopped'.gray)
+
+  await setHealth(agent2HealthKv, false, 'agent2')
+  await setHealth(agent1HealthKv, false, 'agent1')
+
+  await setHealth(agent2HealthKv, true, 'agent2')
+  await setHealth(agent1HealthKv, true, 'agent1')
+
+  await toggleGw(agent1ConfPath)
+  await toggleGw(agent2ConfPath)
+  console.log('gw toggled'.gray)
+
+  await env.getContainer('nats-gw1').restart()
+  await env.getContainer('nats-gw2').restart()
+  console.log('gw restarted'.gray)
+
+  await t.setTimeout(60e3)
+  console.log('end...')
+  if (1) return
   console.log('------------------');
   for (let i = 4; i > 0; i--) {
     await t.setTimeout(1e3)
@@ -268,19 +331,6 @@ const main = async () => {
 
   })()
 
-//  ;(async ()=>{
-//    while (true) {
-//      console.log('------------')
-//      await Promise.all([
-//        await logCount('agent1Js', agent1Js, agentOutputStreamName),
-//        await logCount('gw1Js', gw1Js, agentsOutputStreamName),
-//        await logCount('space1Js', space1Js, spaceOutputStreamName),
-//        await logCount('bridgeJs', bridgeJs, space1OutputMainStreamName),
-//      ])
-//      console.log('------------')
-//      await t.setTimeout(1e3)
-//    }
-//  })()
   const listStreams = async (ncName: string, jsm: JetStreamManager) => {
     const streams = await jsm.streams.list()
     const x = []
@@ -317,33 +367,12 @@ const main = async () => {
 
 
   for (let i = 200; i > 0; i--) {
-    console.log('publish 1', i)
-    const x0 = await agent1Js.publish('output.y' + i, undefined, {
-      expect: {
-        streamName: agentOutputStreamName
-      }
-    })
-    console.log({ x0 });
-    console.log('publish 2', i)
-
-
-    const x = await agent1Js.publish('output.z' + i, undefined, {
-      expect: {
-        streamName: agentOutputStreamName
-      }
-    })
+    const x = await sendOutputFromAgent(i, agent1Js);
     console.log({ x });
-    const x2 = await mainJs.publish('input.z' + i, undefined, {
-      expect: {
-        streamName: 'agents-input'
-      }
-    })
-    console.log({ x2 });
+    await sendInputFromMain(mainJs, i);
 
-    let agent1ConfPath: string = './nats-agents/agent1.conf';
-    console.log('has gw2 before ', (await getInfo(agent1ConfPath)).hasGw2);
-    await changeGw(agent1ConfPath)
-    console.log('has gw2 after ', (await getInfo(agent1ConfPath)).hasGw2);
+    await toggleGw(agent1ConfPath);
+    await toggleGw(agent2ConfPath);
 
     console.log('restarting...');
     await env.getContainer('nats-agent')
