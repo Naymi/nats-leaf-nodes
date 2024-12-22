@@ -14,6 +14,14 @@ services:
     image: ghcr.io/nats-nui/nui
     ports:
       - 31311:31311
+  nats-single:
+    container_name: nats-single
+    image: nats:alpine
+    ports:
+      - "30000:4222"
+      - "30001:8222"
+    command: -c /etc/nats/single.conf
+    <<: *common
   nats-main:
     container_name: nats-main
     image: nats:alpine

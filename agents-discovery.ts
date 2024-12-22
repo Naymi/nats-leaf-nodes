@@ -1,4 +1,4 @@
-import { JetStreamClient, JetStreamManager, RetentionPolicy } from "nats";
+import { JetStreamClient, JetStreamManager, KV, KvOptions, RetentionPolicy } from "nats";
 import * as t from 'node:timers/promises'
 import { DockerComposeEnvironment, StartedDockerComposeEnvironment } from "testcontainers";
 import {
@@ -8,8 +8,9 @@ import { createMainConnect } from "./handlers/main/create-main.connect";
 import { setupInput } from "./trash/setup.input";
 import { changeGw, getInfo } from "./tt";
 import { createNatsConnectionFactory } from "./utils/creator-factory";
-
+import 'colors'
 let agent1DomainName: string = 'agent1';
+let agent2DomainName: string = 'agent2';
 let space1DomainName: "space1" = 'space1';
 let space2DomainName: "space2" = 'space2';
 let gw1DomainName: "gw1" = 'gw1';
@@ -22,6 +23,7 @@ let space1OutputMainStreamName: string = 'space1-output';
 let space2OutputMainStreamName: string = 'space2-output';
 let spacesOutputsMainStream: string = 'spaces-outputs';
 
+const agentHealthcheckKv = 'agent-healthcheck';
 
 async function logCount(name: string, js: JetStreamClient, stream: string): Promise<void> {
   const count = (await (await js.streams.get(stream)).info()).state.messages;
@@ -32,7 +34,8 @@ const createSpace1Conn = createNatsConnectionFactory(space1DomainName, space1Nod
 const createSpace2Conn = createNatsConnectionFactory(space2DomainName, space2Nodes)
 const createGw1Conn = createNatsConnectionFactory(gw1DomainName, gw1Nodes)
 const createGw2Conn = createNatsConnectionFactory(gw2DomainName, gw2Nodes)
-const createAgentConn = createNatsConnectionFactory(agent1DomainName, agentNodes)
+const createAgent1Conn = createNatsConnectionFactory(agent1DomainName, agentNodes)
+const createAgent2Conn = createNatsConnectionFactory(agent2DomainName, agentNodes)
 const createBridgeConn = createNatsConnectionFactory(bridgeDomain, bridgeNodes)
 
 let env: StartedDockerComposeEnvironment
@@ -52,51 +55,7 @@ const handleMessage = async (js: JetStreamClient, stream: string, title: string)
   console.log(title + ' finished')
 };
 
-const main = async () => {
-  console.log('up')
-  env = await new DockerComposeEnvironment('.', './compose.agents.yaml').up()
-  console.log('upped')
-  const {
-    mainJsm,
-    mainJs
-  } = await createMainConnect()
-  console.log('main connected')
-
-  const {
-    space1Jsm,
-    space1Js
-  } = await createSpace1Conn()
-  console.log('space1Js connected')
-
-  console.log('bridgeJs connecting')
-  const {
-    bridgeJsm,
-    bridgeJs
-  } = await createBridgeConn()
-  console.log('bridgeJs connected')
-
-  console.log('createSpace2Conn connected')
-
-  const {
-    gw1Jsm,
-    gw1Js
-  } = await createGw1Conn()
-  console.log('createGw1Conn connected')
-
-  const { gw2Jsm } = await createGw2Conn()
-  console.log('createGw2Conn connected')
-
-  const { space2Jsm } = await createSpace2Conn()
-  console.log('createSpace2Conn connected')
-
-  const {
-    agent1Jsm,
-    agent1Js
-  } = await createAgentConn()
-  console.log('createAgentConn connected')
-
-  await setupInput(bridgeJsm, mainJsm, space1Jsm, space2Jsm, gw1Jsm, gw2Jsm, agent1Jsm, space1DomainName, gw1DomainName, space2DomainName)
-
+async function setupOutputStreams(agent1Jsm: JetStreamManager, gw1Jsm: JetStreamManager, gw2Jsm: JetStreamManager, space1Jsm: JetStreamManager, space2Jsm: JetStreamManager, bridgeJsm: JetStreamManager, mainJsm: JetStreamManager): Promise<void> {
   await agent1Jsm.streams.add({
     name: agentOutputStreamName,
     subjects: ['output.*'],
@@ -169,7 +128,107 @@ const main = async () => {
       }
     ]
   })
+}
 
+const main = async () => {
+  console.log('up')
+  env = await new DockerComposeEnvironment('.', './compose.agents.yaml').up()
+  console.log('upped')
+  const {
+    mainJsm,
+    mainJs
+  } = await createMainConnect()
+  console.log('main connected')
+
+  const {
+    space1Jsm,
+    space1Js
+  } = await createSpace1Conn()
+  console.log('space1Js connected')
+
+  console.log('bridgeJs connecting')
+  const {
+    bridgeJsm,
+    bridgeJs
+  } = await createBridgeConn()
+  console.log('bridgeJs connected')
+
+  console.log('createSpace2Conn connected')
+
+  const {
+    gw1Jsm,
+    gw1Js
+  } = await createGw1Conn()
+  console.log('createGw1Conn connected')
+
+  const { gw2Jsm, gw2Js } = await createGw2Conn()
+  console.log('createGw2Conn connected')
+
+  const { space2Jsm } = await createSpace2Conn()
+  console.log('createSpace2Conn connected')
+
+  const {
+    agent1Jsm,
+    agent1Js
+  } = await createAgent1Conn()
+  console.log('createAgent1Conn connected')
+  const {
+    agent2Jsm,
+    agent2Js
+  } = await createAgent2Conn()
+  console.log('createAgent2Conn connected')
+
+  await setupInput(bridgeJsm, mainJsm, space1Jsm, space2Jsm, gw1Jsm, gw2Jsm, agent1Jsm, space1DomainName, gw1DomainName, space2DomainName)
+  await setupOutputStreams(agent1Jsm, gw1Jsm, gw2Jsm, space1Jsm, space2Jsm, bridgeJsm, mainJsm);
+
+  const agent1HealthKv = await agent1Js.views.kv(agentHealthcheckKv)
+  const agent2HealthKv = await agent2Js.views.kv(agentHealthcheckKv)
+  let gwHealthKvConfig: Partial<KvOptions> = {
+    sources: [
+      {
+        name: `KV_${agentHealthcheckKv}`,
+        domain: agent1DomainName
+      },
+      {
+        name: `KV_${agentHealthcheckKv}`,
+        domain: agent2DomainName
+      },
+    ]
+  };
+  let agentsHealthcheckKvName: string = 'agents-healthcheck';
+  const gw1HealthKv = await gw1Js.views.kv(agentsHealthcheckKvName, gwHealthKvConfig)
+  const gw2HealthKv = await gw2Js.views.kv(agentsHealthcheckKvName, gwHealthKvConfig)
+
+  const mainHealthKv = await mainJs.views.kv(agentsHealthcheckKvName, {
+    sources: [
+      {
+        name: `KV_${agentHealthcheckKv}`,
+        domain: gw1DomainName
+      },
+      {
+        name: `KV_${agentHealthcheckKv}`,
+        domain: gw2DomainName
+      },
+    ]
+  })
+
+  async function startWatchKv(kv: KV, title: string): Promise<void> {
+    const watch = await kv.watch()
+
+    for await (const event of watch) {
+      console.log('Received:'.blue, title, event.key, event.string())
+    }
+  }
+
+  startWatchKv(mainHealthKv, 'mainHealthKv'.bgYellow);
+  startWatchKv(gw1HealthKv, 'gw1HealthKv');
+  startWatchKv(gw2HealthKv, 'gw2HealthKv');
+
+  for await (const void1 of t.setInterval(5e3)) {
+    await agent1HealthKv.put('agent1' , 'agent1Healthy')
+    await agent2HealthKv.put('agent2' , 'agent2Healthy')
+    console.log('health settled!');
+  }
 
   console.log('------------------');
   for (let i = 4; i > 0; i--) {
@@ -281,9 +340,10 @@ const main = async () => {
     })
     console.log({ x2 });
 
-    console.log('has gw2 before ', (await getInfo()).hasGw2);
-    await changeGw()
-    console.log('has gw2 after ', (await getInfo()).hasGw2);
+    let agent1ConfPath: string = './nats-agents/agent1.conf';
+    console.log('has gw2 before ', (await getInfo(agent1ConfPath)).hasGw2);
+    await changeGw(agent1ConfPath)
+    console.log('has gw2 after ', (await getInfo(agent1ConfPath)).hasGw2);
 
     console.log('restarting...');
     await env.getContainer('nats-agent')

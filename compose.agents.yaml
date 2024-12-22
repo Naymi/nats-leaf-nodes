@@ -79,14 +79,28 @@ services:
       nats-space2:
         condition: service_healthy
 
-  nats-agent:
-    container_name: nats-agent
+  nats-agent1:
+    container_name: nats-agent1
     <<: *common
     image: nats:alpine
-    command: -c /etc/nats/agent.conf
+    command: -c /etc/nats/agent1.conf
     ports:
       - "4822:4222"
       - "8822:8222"
+    depends_on:
+      nats-gw1:
+        condition: service_healthy
+      nats-gw2:
+        condition: service_healthy
+
+  nats-agent2:
+    container_name: nats-agent2
+    <<: *common
+    image: nats:alpine
+    command: -c /etc/nats/agent2.conf
+    ports:
+      - "4922:4222"
+      - "8922:8222"
     depends_on:
       nats-gw1:
         condition: service_healthy

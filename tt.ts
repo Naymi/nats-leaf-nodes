@@ -1,8 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 
-let confPath: any = './nats-agents/agent.conf';
-export const getInfo = async (): Promise<{ content: string, hasGw2: boolean }> => {
-  const content = await readFile(confPath, 'utf-8')
+export const getInfo = async (agentConfPath: string): Promise<{ content: string, hasGw2: boolean }> => {
+  const content = await readFile(agentConfPath, 'utf-8')
   const hasGw2 = content.includes('nats-gw1')
   return {
     content,
@@ -10,13 +9,13 @@ export const getInfo = async (): Promise<{ content: string, hasGw2: boolean }> =
   };
 };
 
-export const changeGw = async ()=>{
+export const changeGw = async (agentConfPath: string)=>{
   let {
     content,
     hasGw2
-  } = await getInfo();
+  } = await getInfo(agentConfPath);
 
   const newContent = hasGw2 ? content.replace('nats-gw1', 'nats-gw2') : content.replace('nats-gw2', 'nats-gw1')
 
-  await writeFile(confPath, newContent)
+  await writeFile(agentConfPath, newContent)
 }
