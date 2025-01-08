@@ -133,10 +133,11 @@ async function setupOutputStreams(agent1Jsm: JetStreamManager, gw1Jsm: JetStream
   })
 }
 
-async function toggleGw(agent1ConfPath: string): Promise<void> {
-  console.log('has gw2 before ', (await getInfo(agent1ConfPath)).hasGw2);
-  await changeGw(agent1ConfPath)
-  console.log('has gw2 after ', (await getInfo(agent1ConfPath)).hasGw2);
+async function toggleGw(env: StartedDockerComposeEnvironment, agentConfPath: string, agentContainerName: string): Promise<void> {
+  console.log('has gw2 before ', (await getInfo(agentConfPath)).hasGw2);
+  await changeGw(agentConfPath)
+  console.log('has gw2 after ', (await getInfo(agentConfPath)).hasGw2);
+  await env.getContainer(`nats-${agentContainerName}`).restart()
 }
 
 async function sendOutputFromAgent(i: number, agent1Js: JetStreamClient): Promise<any> {
@@ -259,7 +260,7 @@ const main = async () => {
     const watch = await kv.watch()
 
     for await (const event of watch) {
-      console.log('Received:'.blue, title, event.key, event.string())
+      console.log('Received:'.blue, title, event.key, event.string(), event.revision)
     }
   }
 
@@ -272,24 +273,26 @@ const main = async () => {
 
   await t.setTimeout(5e3)
 
-  await env.getContainer('nats-gw1').stop({remove: false})
-  await env.getContainer('nats-gw2').stop({remove: false})
-  console.log('gw stopped'.gray)
+  await env.getContainer('nats-space1').stop({remove: false})
+  console.log('space1 stopped'.gray)
 
-  await setHealth(agent2HealthKv, false, 'agent2')
   await setHealth(agent1HealthKv, false, 'agent1')
 
-  await setHealth(agent2HealthKv, true, 'agent2')
+  await t.setTimeout(10e3)
+  await toggleGw(env, agent1ConfPath, 'agent1')
+  console.log('gw toggled'.gray);
+  await t.setTimeout(5e3)
+
   await setHealth(agent1HealthKv, true, 'agent1')
 
-  await toggleGw(agent1ConfPath)
-  await toggleGw(agent2ConfPath)
-  console.log('gw toggled'.gray)
+  await t.setTimeout(10e3)
 
-  await env.getContainer('nats-gw1').restart()
-  await env.getContainer('nats-gw2').restart()
-  console.log('gw restarted'.gray)
+  await env.getContainer('nats-space1').restart()
 
+  console.log('space1 started'.gray)
+
+  await t.setTimeout(60e3)
+  await setHealth(agent1HealthKv, true, 'agent1')
   await t.setTimeout(60e3)
   console.log('end...')
   if (1) return
@@ -371,8 +374,8 @@ const main = async () => {
     console.log({ x });
     await sendInputFromMain(mainJs, i);
 
-    await toggleGw(agent1ConfPath);
-    await toggleGw(agent2ConfPath);
+    await toggleGw(env, agent1ConfPath, 'agent1');
+    await toggleGw(env, agent2ConfPath, 'agent2');
 
     console.log('restarting...');
     await env.getContainer('nats-agent')
