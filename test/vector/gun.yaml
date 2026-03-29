@@ -1,0 +1,28 @@
+sources:
+  demo:
+    type: demo_logs
+    count: 300000
+    interval: 0.0
+    format: json
+
+
+sinks:
+#  http:
+#    type: http
+#    uri: http://localhost:30000
+#    encoding:
+#      codec: json
+#    inputs:
+#      - demo
+#    batch:
+#      max_events: 1
+
+  vector:
+    type: vector
+    address: localhost:30001
+#    encoding:
+#      codec: json
+    inputs:
+      - demo
+#    batch:
+#      max_events: 1

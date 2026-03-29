@@ -1,0 +1,20 @@
+api:
+  enabled: true
+
+sources:
+  http:
+    type: http_server
+    address: 0.0.0.0:30000
+
+  vector:
+    type: vector
+    address: 0.0.0.0:30001
+
+sinks:
+  console:
+    type: blackhole
+    inputs:
+      - http
+      - vector
+#    encoding:
+#      codec: json

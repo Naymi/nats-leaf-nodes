@@ -1,0 +1,1 @@
+{"api":{"enabled":true,"address":"127.0.0.1:8687"},"sinks":{"vector0":{"type":"vector","address":"localhost:30001","inputs":["demo0"],"request":{"concurrency":100000}}},"sources":{"demo0":{"type":"demo_logs","count":100000000,"interval":0,"format":"shuffle","lines":["log"]}}}
